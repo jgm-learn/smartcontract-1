@@ -89,14 +89,14 @@ contract  Market
         temp_market.type_       = "一口价";
     }
     function insertMarket_2(uint price, uint list_qty, uint deal_qty,
-                            uint rem_qty, bytes32  quo_deadline, 
+                            uint rem_qty, bytes32  deadline, 
                             uint dlv_unit, bytes32 user_id ) returns(uint)
     {
         temp_market.price_      = price;
         temp_market.list_qty_   = list_qty;
         temp_market.deal_qty_   = deal_qty;
         temp_market.rem_qty_    = rem_qty;
-        temp_market.deadline_   = quo_deadline;
+        temp_market.deadline_   = deadline;
         temp_market.dlv_unit_   = dlv_unit;
         temp_market.user_id_    = user_id;
         temp_market.seller_addr_= msg.sender;

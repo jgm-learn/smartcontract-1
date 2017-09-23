@@ -97,6 +97,10 @@ library LibUserAddrMap
     }
     function getKey(UserAddrMap storage self, uint it) internal returns (bytes32)
     {
+        if(it + 1 > self.keyIndex.length)
+        {
+            return "";
+        }
         return self.keyIndex[it];
     }
     function size(UserAddrMap storage self) internal returns(uint)

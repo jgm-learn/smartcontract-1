@@ -1,34 +1,35 @@
 pragma solidity ^0.4.11;
 import "./LibString.sol";
 import "./LibArray.sol";
-import "./StructMarket.sol";
-library LibMarketMap
+import "./StructSheet.sol";
+library LibSheetMap
 {
     using LibString for *;
-    struct MarketMap
+    struct SheetMap
     {
-        mapping(uint => StructMarket.value) data;
+        mapping(uint => StructSheet.value) data;
         uint[] keyIndex;
     }
 
-    function insert(MarketMap storage self, uint k, StructMarket.value v)  internal returns (bool replaced)
+    function insert(SheetMap storage self, uint k, StructSheet.value v)  internal returns (bool replaced)
     {
         replaced = true;
-        if(self.data[k].dlv_unit_ == 0)
+        if(self.data[k].user_id_ == "")
         {
             self.keyIndex.push(k);
             replaced = false;
         }
         self.data[k] = v;
     }
-    function update(MarketMap storage self, uint k, uint deal_qty, uint rem_qty) internal
+    function update(SheetMap storage self, uint k, uint all_amount, uint available_amount, uint frozen_amount) internal
     {
-       self.data[k].deal_qty_ = deal_qty; 
-       self.data[k].rem_qty_ = rem_qty; 
+        self.data[k].all_amount_ = all_amount;
+        self.data[k].available_amount_ = available_amount;
+        self.data[k].frozen_amount_ = frozen_amount;
     }
-    function remove(MarketMap storage self, uint k) internal returns (bool existed)
+    function remove(SheetMap storage self, uint k) internal returns (bool existed)
     {
-        if(self.data[k].dlv_unit_ == 0)
+        if(self.data[k].user_id_ == "")
         {
             return false;
         }
@@ -39,28 +40,28 @@ library LibMarketMap
             return true;
         }
     }
-    function getValue(MarketMap storage self, uint k) internal returns (StructMarket.value)
+    function getValue(SheetMap storage self, uint k) internal returns (StructSheet.value)
     {
         return self.data[k];
     }
     /*
-    function isExisted(MarketMap storage self, uint k) internal returns (bool existed)
+    function isExisted(SheetMap storage self, bytes32 k) internal returns (bool existed)
     {
         var (ret, ) = LibString.inArray(k, self.keyIndex);
         return ret;
     }
     */
-    function empty(MarketMap storage self) internal returns (bool)
+    function empty(SheetMap storage self) internal returns (bool)
     {
         return (self.keyIndex.length == 0);
     }
-    function it_start(MarketMap storage self) internal returns (uint)
+    function it_start(SheetMap storage self) internal returns (uint)
     {
         if(empty(self))
                 return uint(-1);
         return 0;
     }
-    function it_next(MarketMap storage self, uint it) internal returns (uint)
+    function it_next(SheetMap storage self, uint it) internal returns (uint)
     {
         it++;
         if(it < self.keyIndex.length)
@@ -80,7 +81,7 @@ library LibMarketMap
             return false;
         }
     }
-    function it_valid(MarketMap storage, uint it) internal returns (bool)
+    function it_valid(SheetMap storage, uint it) internal returns (bool)
     {
         if( (uint(-1) != it) )
         {
@@ -91,28 +92,26 @@ library LibMarketMap
             return false;
         }
     }
-    function getValueByIndex(MarketMap storage self, uint it) internal returns (StructMarket.value)
+    function getValueByIndex(SheetMap storage self, uint it) internal returns (StructSheet.value)
     {
         if(it + 1 > self.keyIndex.length)
         {
-            StructMarket.value empty_value;
+            StructSheet.value empty_value;
             return empty_value;
         }
         return self.data[ self.keyIndex[it] ];
     }
-    function getKey(MarketMap storage self, uint it) internal returns (uint)
+    /*
+    function getKey(SheetMap storage self, uint it) internal returns (bytes32)
     {
-        if(it + 1 > self.keyIndex.length)
-        {
-            return 0;
-        }
         return self.keyIndex[it];
     }
-    function size(MarketMap storage self) internal returns(uint)
+    */
+    function size(SheetMap storage self) internal returns(uint)
     {
         return self.keyIndex.length;
     }
-    function length(MarketMap storage self) internal returns(uint)
+    function length(SheetMap storage self) internal returns(uint)
     {
         return self.keyIndex.length;
     }

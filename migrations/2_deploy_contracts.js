@@ -5,6 +5,7 @@ var CreateID = artifacts.require("CreateID");
 var StructAddressInfo = artifacts.require("StructAddressInfo");
 var StructMarket = artifacts.require("StructMarket");
 var StructUserAddr = artifacts.require("StructUserAddr");
+var StructSheet = artifacts.require("StructSheet");
 
 //lib
 var LibArray = artifacts.require("LibArray");
@@ -12,6 +13,7 @@ var LibString = artifacts.require("LibString");
 var LibAddressMap = artifacts.require("LibAddressMap");
 var LibMarketMap = artifacts.require("LibMarketMap");
 var LibUserAddrMap = artifacts.require("LibUserAddrMap");
+var LibSheetMap = artifacts.require("LibSheetMap");
 
 //contract
 var ContractAddress = artifacts.require("ContractAddress");
@@ -28,6 +30,7 @@ module.exports = function(deployer) {
   deployer.deploy(StructAddressInfo);
   deployer.deploy(StructMarket);
   deployer.deploy(StructUserAddr);
+  deployer.deploy(StructSheet);
 
   //lib
   deployer.deploy(LibString);
@@ -35,6 +38,7 @@ module.exports = function(deployer) {
   deployer.deploy(LibAddressMap);
   deployer.deploy(LibMarketMap);
   deployer.deploy(LibUserAddrMap);
+  deployer.deploy(LibSheetMap);
 
   //befor deploy contract. link lib.
   deployer.link(StructAddressInfo, [ContractAddress]);
@@ -47,6 +51,9 @@ module.exports = function(deployer) {
 
   deployer.link(StructUserAddr, [UserList]);
   deployer.link(LibUserAddrMap, [UserList]);
+
+  deployer.link(StructSheet, [User]);
+  deployer.link(LibSheetMap, [User]);
 
   //contract
   deployer.deploy(ContractAddress);

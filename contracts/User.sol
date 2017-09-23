@@ -2,6 +2,9 @@ pragma solidity ^0.4.5;
  
 import "./CreateID.sol";
 import "./Market.sol";
+import "./lib/LibSheetMap.sol";
+import "./lib/StructSheet.sol";
+import "./ContractAddress.sol";
 
 contract User
 {
@@ -78,7 +81,7 @@ contract User
      CreateID                        ID;                 //ID合约变量
      
      //存储仓单     
-     mapping(uint => Sheet)           sheet_map;         //仓单ID => 仓单
+ //    mapping(uint => Sheet)           sheet_map;         //仓单ID => 仓单
         
      //存储挂牌请求     
      ListRequest[]                      list_req_array;     
@@ -95,83 +98,92 @@ contract User
      event error(string,string, uint);
      event error1(string);
      event inform(string);
-     
-    //构造仓单 "A",0,"sugar","2017","lev","wh_id","place",30
-   function createReceipt(string user_id, uint sheet_id_, string class_id,string make_date,
-                        string lev_id, string wh_id, string place_id,  uint receipt_amount)
-    {
-        
-        sheet_map[sheet_id_] = Sheet(user_id, sheet_id_,class_id, make_date, lev_id, 
-                                        wh_id, place_id, receipt_amount,0,receipt_amount,true);
-    }
-     
-     
-     //构造函数
-     /*
-     function User(address id_addr, address market_addr, address user_list_addr)
+
+     using LibSheetMap for LibSheetMap.SheetMap;
+     LibSheetMap.SheetMap   sheet_map;
+     ContractAddress        contract_address;
+     string                 market_name;
+     function setContractAddress(address addr)
      {
-         ID         =   CreateID(id_addr);
-         market  =   Market(market_addr);
-         user_list  =   UserList(user_list_addr);
+             contract_address = ContractAddress(addr); 
      }
-     */
+     function setMarketName(string name)
+     {
+            market_name = name;
+     }
+
+     function insertSheet(bytes32 user_id, uint sheet_id, bytes32 class_id, bytes32 make_date,
+                        bytes32 lev_id, bytes32 wh_id, bytes32 place_id, uint all_amount, 
+                        uint frozen_amount, uint available_amount)
+     {
+        sheet_map.insert(sheet_id, StructSheet.value(user_id, sheet_id, 
+                        class_id, make_date, lev_id, wh_id, place_id, all_amount,
+                        frozen_amount, available_amount));
+     }
+
+    //获取持有者的仓单数量
+    function getSheetAmount(uint sheet_id) returns (uint all_amount, uint available_amount, uint frozen_amount)
+    {
+        StructSheet.value memory sheet = sheet_map.getValue(sheet_id);
+        all_amount = sheet.all_amount_;
+        available_amount = sheet.available_amount_;
+        frozen_amount = sheet.frozen_amount_;
+    }
+
+    //冻结仓单
+    function freeze(uint sheet_id, uint amount) returns (bool)
+    {
+        var(all_amount, available_amount, frozen_amount) = getSheetAmount(sheet_id);
+        if(amount > available_amount)  
+              return false;
+              
+        sheet_map.update(sheet_id, all_amount, available_amount - amount, frozen_amount + amount);         
+        return true;
+    }
+
+    //挂牌请求 "zhang",0,10,20
+    function listRequire(string seller_user_id, uint sheet_id, uint price, uint sell_qty) returns(uint ret_market_id)
+    {
+        var sheet = sheet_map.getValue(sheet_id);
+        if(sheet.available_amount_ == 0)
+        {
+            //TODO event
+            return uint(-1);
+        }
+        /* TODO init market and test
+        market.insertMarket_1(sheet.sheet_id_,sheet.class_id_, sheet.make_date_,   
+           sheet.lev_id_, sheet.wh_id_, sheet.place_id_);
+
+        var ret_market_id = market.insertMarket_2(sheet.price_, sheet.list_qty_, sheet.deal_qty_,
+                            sheet.rem_qty_, sheet.deadline_, 
+                            sheet.dlv_unit_, sheet.user_id_ );
+        if(market_id >0)
+        {
+            freeze(sheet_id_, sheet_qty);
+        }
+        */
+        /*
+        list_req_array.push(ListRequest(sheet_id_, market_id, price, sheet_qty, 0, sheet_qty) ); 
+        */
+    }
+
+
+     
      
 
    function insertSheet(string user_id, uint sheet_id, string class_id,string make_date,
                         string lev_id, string wh_id, string place_id,  uint receipt_amount)
     {
         
-        sheet_map[sheet_id] = Sheet(user_id, sheet_id,class_id, make_date, lev_id, 
-                                        wh_id, place_id, receipt_amount,0,receipt_amount,true);
+//        sheet_map[sheet_id] = Sheet(user_id, sheet_id,class_id, make_date, lev_id, 
+                                   //     wh_id, place_id, receipt_amount,0,receipt_amount,true);
     }
     
-    //获取持有者的仓单数量
-    function getReceiptAmount(uint sheet_id_) returns (uint)
-    {
-        return sheet_map[sheet_id_].receipt_amount_;
-    }
     
      //获取可用仓单数量
     function getAvailableAmount(uint sheet_id_) returns (uint)
     {
-        return sheet_map[sheet_id_].available_amount_;
-    }
-       
-    //冻结仓单
-    function freeze(uint sheet_id_, uint amount) returns (bool)
-    {
-         if(amount > sheet_map[sheet_id_].available_amount_)  
-              return false;
-              
-         sheet_map[sheet_id_].frozen_amount_    += amount;
-         sheet_map[sheet_id_].available_amount_ -= amount;
-         
-         return true;
-    }
-
-    
-    //挂牌请求 "zhang",0,10,20
-    function listRequire(string user_id, uint sheet_id_, uint price, uint sheet_qty) returns(uint market_id)
-    {
-        if(sheet_map[sheet_id_].state_ == false)
-        {
-             error("ListRequire():仓单序号不存在","错误代码：",uint(-2));
-             return (uint(-1));
-        }
-        if(sheet_qty > sheet_map[sheet_id_].available_amount_)  
-        {
-             error("ListRequire():可用仓单数量不足","错误代码：",uint(-3));
-             return (uint(-1));
-        }
-        market.insertList1(sheet_id_, sheet_map[sheet_id_].class_id_, sheet_map[sheet_id_].make_date_,
-                                sheet_map[sheet_id_].lev_id_,sheet_map[sheet_id_].wh_id_,sheet_map[sheet_id_].place_id_);
-                                
-        market_id = market.insertList2(price, sheet_qty, 0, sheet_qty, "挂牌截止日",6039, user_id);
-        if(market_id >0)
-        {
-            freeze(sheet_id_, sheet_qty);
-        }
-        list_req_array.push(ListRequest(sheet_id_, market_id, price, sheet_qty, 0, sheet_qty) ); 
+//        return sheet_map[sheet_id_].available_amount_;
     }
     
     //更新卖方挂牌请求
@@ -236,6 +248,7 @@ contract User
     function sendNegReq(uint sheet_id_, uint price, 
                                 uint quantity, string counterparty_id) returns(uint)
     {
+    /*
         if(quantity > sheet_map[sheet_id_].available_amount_)
         {
             error("negotiate_req():可用仓单数量不足","错误代码:",uint(-1));
@@ -259,7 +272,7 @@ contract User
         //User counterparty =  User( user_list.GetUserConAddr(counterparty_id) );
         //counterparty.recieveNegReq(sheet_id_,quantity,price,
         //                        neg_id, sheet_map[sheet_id_].user_id_);
-        
+     */   
         
     }
     
