@@ -21,6 +21,11 @@ contract UserList
         ret_user_id             = user_addr.user_id_;
         user_auth               = user_addr.user_auth_;
     }
+    function getUserAgentAddr(bytes32 user_id) returns(address agent_addr)
+    {
+        user_addr    = user_map.getValue(user_id);
+        agent_addr   = user_addr.agent_addr_;
+    }
     function getUserNum() returns (uint)
     {
         return user_map.size();

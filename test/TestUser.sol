@@ -4,52 +4,83 @@ import "truffle/DeployedAddresses.sol";
 import "../contracts/User.sol";
 import "../contracts/ContractAddress.sol";
 import "../contracts/Market.sol";
+import "../contracts/UserList.sol";
+import "../contracts/CreateID.sol";
 contract TestUser
 {
     User user;
+    UserList user_list;
     Market market;
+    CreateID create_id;
     ContractAddress contract_addr;
     string market_name;
+    string create_id_name;
+    string user_list_name;
     bytes32 user_id;
     uint sheet_id;
     uint all_amount;
     uint available_amount;
     uint frozen_amount;
+
+    User user_a;
+    User user_b;
+    bytes32 user_a_id;
+    bytes32 user_b_id;
+
+
    function beforeEach()
    {
-        user = new User();
-        contract_addr = new ContractAddress();
-        market  = new Market();
-        market_name = "market";
+
+        sheet_id            = 12345;
+        all_amount          = 40;
+        available_amount    = 30;
+        frozen_amount       = 20;
+        
+        user            = new User();
+        user_a          = new User();
+        user_b          = new User();
+        user_list       = new UserList();
+        contract_addr   = new ContractAddress();
+        market          = new Market();
+        create_id       = new CreateID();
+
+        market_name     = "market";
+        create_id_name  = "create_id";
+        user_list_name  = "user_list";
+        user_id         = "user";
+        user_a_id       = "I am user a";
+        user_b_id       = "I am user b";
 
         contract_addr.setContractAddress(market_name, market);
+        contract_addr.setContractAddress(create_id_name, create_id);
+        contract_addr.setContractAddress(user_list_name, user_list);
+
+        market.setContractAddress(contract_addr);
+        market.setCreateIDName(create_id_name);
+        market.setUserListName(user_list_name);
+
+        user_list.addUser(user,user,user_id,1); 
+        user_list.addUser(user_a,user_a,user_a_id,1); 
+        user_list.addUser(user_b,user_b,user_b_id,1); 
+
         user.setContractAddress(contract_addr);
         user.setMarketName(market_name);
+        user.setCreateIDName(create_id_name);
+        user.setUserListName(user_list_name);
+        user.setUserID(user_id);
 
-        user_id = "user_a";
-        sheet_id = 3;
-        all_amount = 20;
-        available_amount = 30;
-        frozen_amount = 40;
-   }
-   function testInsertSheet()
-   {
-        user.insertSheet(user_id,sheet_id,"SR","make_date","level_id","wh_id","产地",all_amount, available_amount, frozen_amount);
-        var(ret_all_amount, ret_available_amount, ret_frozen_amount) = user.getSheetAmount(sheet_id);
-        Assert.equal(all_amount, ret_all_amount, "");
-        Assert.equal(available_amount, ret_available_amount, "");
-        Assert.equal(frozen_amount, ret_frozen_amount, "");
-   }
+        user_a.setContractAddress(contract_addr);
+        user_a.setMarketName(market_name);
+        user_a.setCreateIDName(create_id_name);
+        user_a.setUserListName(user_list_name);
+        user_a.setUserID(user_a_id);
 
-   function testFreeze_normal()
-   {
-        user.insertSheet(user_id,sheet_id,"SR","make_date","level_id","wh_id","产地",all_amount, available_amount, frozen_amount);
-        user.freeze(sheet_id, 5);
-        user.freeze(sheet_id, 6);
-        var(ret_all_amount, ret_available_amount, ret_frozen_amount) = user.getSheetAmount(sheet_id);
-        Assert.equal(ret_all_amount, ret_all_amount, "");
-        Assert.equal(ret_available_amount, available_amount - 5 -6, "");
-        Assert.equal(ret_frozen_amount, frozen_amount + 5 + 6, "");
+        user_b.setContractAddress(contract_addr);
+        user_b.setMarketName(market_name);
+        user_b.setCreateIDName(create_id_name);
+        user_b.setUserListName(user_list_name);
+        user_b.setUserID(user_b_id);
+
    }
    function testFreeze_exceed_owned_sheet()
    {
@@ -59,5 +90,75 @@ contract TestUser
         Assert.equal(all_amount, ret_all_amount, "");
         Assert.equal(available_amount, ret_available_amount, "");
         Assert.equal(frozen_amount, ret_frozen_amount, "");
+   }
+   function testGetMarketAddr()
+   {
+        address market_addr = contract_addr.getContractAddress(market_name);
+        Assert.equal(market_addr, market, "");
+   }
+   function testListRequest_one_time()
+   {
+        uint sell_price = 100;
+        uint sell_qty = 6;
+        user.insertSheet(user_id,sheet_id,"SR","make_date","level_id","wh_id","产地",all_amount, available_amount, frozen_amount);
+        var ret_market_id = user.listRequest(user_id,sheet_id,sell_price,sell_qty);
+        var(ret_all_amount, ret_available_amount, ret_frozen_amount) = user.getSheetAmount(sheet_id);
+        Assert.equal(ret_available_amount, available_amount - sell_qty, "");
+        Assert.equal(ret_frozen_amount, frozen_amount + sell_qty, "");
+        Assert.equal(market.getMarketNum(), 1, "");
+        Assert.equal(user.getListReqNum(), 1, "");
+   }
+   function testListRequest_two_time()
+   {
+        uint sell_price = 100;
+        uint sell_qty = 6;
+        user.insertSheet(user_id,sheet_id,"SR","make_date","level_id","wh_id","产地",all_amount, available_amount, frozen_amount);
+        var ret_market_id = user.listRequest(user_id,sheet_id,sell_price,sell_qty); //one time
+        ret_market_id = user.listRequest(user_id,sheet_id,sell_price,sell_qty);     //two time
+        var(ret_all_amount, ret_available_amount, ret_frozen_amount) = user.getSheetAmount(sheet_id);
+        Assert.equal(ret_available_amount, available_amount - sell_qty*2, "");
+        Assert.equal(ret_frozen_amount, frozen_amount + sell_qty*2, "");
+        Assert.equal(market.getMarketNum(), 2, "");
+        Assert.equal(user.getListReqNum(), 2, "");
+   }
+   function testDelistRequest_listqty_greater_delistqty()
+   {
+        //user_a 挂牌
+        uint sell_price = 100;
+        uint sell_qty = 6;
+        user_a.insertSheet(user_a_id,sheet_id,"SR","make_date","level_id","wh_id","产地",all_amount, available_amount, frozen_amount);
+        var ret_market_id = user_a.listRequest(user_id,sheet_id,sell_price,sell_qty);
+
+        //user_b 摘牌
+        uint buy_qty = 2;
+        var ret_delist = user_b.delistRequest(user_b_id, ret_market_id, buy_qty);
+
+        //Assert
+        Assert.equal(ret_market_id, 1, "");
+        Assert.equal(ret_delist, 0, "");
+        Assert.equal(market.getMarketNum(), 1, "");
+        Assert.equal(user_a.getTradeNum(), 1, "");
+        Assert.equal(user_b.getTradeNum(), 1, "");
+        //var(ret_all_amount, ret_available_amount, ret_frozen_amount) = user.getSheetAmount(sheet_id);
+
+   }
+   function testDelistRequest_listqty_equal_delistqty()
+   {
+        //user_a 挂牌
+        uint sell_price = 100;
+        uint sell_qty = 6;
+        user_a.insertSheet(user_a_id,sheet_id,"SR","make_date","level_id","wh_id","产地",all_amount, available_amount, frozen_amount);
+        var ret_market_id = user_a.listRequest(user_id,sheet_id,sell_price,sell_qty);
+
+        //user_b 摘牌
+        uint buy_qty = 6;
+        var ret_delist = user_b.delistRequest(user_b_id, ret_market_id, buy_qty);
+
+        //Assert
+        Assert.equal(ret_market_id, 1, "");
+        Assert.equal(ret_delist, 0, "");
+        Assert.equal(market.getMarketNum(), 0, "");
+        Assert.equal(user_a.getTradeNum(), 1, "");
+        Assert.equal(user_b.getTradeNum(), 1, "");
    }
 }

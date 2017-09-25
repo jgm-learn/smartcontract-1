@@ -9,42 +9,17 @@ import "./lib/LibMarketMap.sol";
  
 contract  Market
 {
-    struct MarketData
-    {
-        uint        date_;      //挂牌日期
-        uint        id_;        //挂牌编号
-        uint        sheet_id_;    //仓单编号
-        string      class_id_;      //品种代码
-        string      make_date_;     //产期
-        string      lev_id_;        //等级
-        string      wh_id_;         //仓库代码
-        string      place_id_;      //产地代码
-        string      type_;      //报价类型
-        uint        price_;         //价格（代替浮点型）
-        uint        qty_;       //挂牌量
-        uint        deal_qty_;      //成交量
-        uint        rem_qty_;       //剩余量
-        string      deadline_;  //挂牌截止日
-        uint        dlv_unit_;      //交割单位
-        string      user_id_;       //用户id
-        address     seller_addr_;   //卖方地址
-        bool        state;          //是否存在
-    }
-
     using LibMarketMap for LibMarketMap.MarketMap;
 
-    LibMarketMap.MarketMap          market_map;
+    LibMarketMap.MarketMap  market_map;
 
-    StructMarket.value              temp_market; //临时行情变量
+    StructMarket.value      temp_market; //临时行情变量
+    uint                    market_id;
 
-    ContractAddress                 contract_address;
+    ContractAddress         contract_address;
 
-    string                          create_id_name;
-    string                          user_list_name;
-
-
-    uint                            market_id = 0;
-    mapping(uint => MarketData)     data_map;   //挂牌编号 => 挂牌数据
+    string                  create_id_name;
+    string                  user_list_name;
     
     //外部依赖
     function setContractAddress(address addr)
@@ -72,6 +47,18 @@ contract  Market
         assert(create_id != empty_addr);
 
         return create_id.getMarketID();
+    }
+    function getTradeID() returns (uint)
+    {
+        address empty_addr;
+        assert(contract_address != empty_addr);
+        assert(bytes(create_id_name).length != 0);
+
+        CreateID create_id = CreateID(contract_address.getContractAddress(create_id_name));
+
+        assert(create_id != empty_addr);
+
+        return create_id.getTradeID();
     }
     function insertMarket_1(uint sheet_id,
                         bytes32  class_id, bytes32  make_date,   
@@ -167,117 +154,38 @@ contract  Market
     }
     function updateMarket(bytes32 buy_user_id, uint selected_market_id, uint confirm_qty) returns(uint)
     {
-        var(sell_user_id, ret_deal_qty, ret_rem_qty) =  getDynamicMarket(selected_market_id);
-        if(ret_rem_qty == 0 || confirm_qty == 0) //剩余量或确认量为0
+        temp_market = market_map.getValue(selected_market_id);
+        if(temp_market.rem_qty_ != 0 && confirm_qty != 0 && confirm_qty <= temp_market.rem_qty_)
         {
-            //TODO event
-            return uint(-1);
+            market_map.update(selected_market_id, temp_market.deal_qty_ + confirm_qty, temp_market.rem_qty_ - confirm_qty);
+            if(confirm_qty == temp_market.rem_qty_) //确认量等于挂牌量，删除该条行情
+            {
+                market_map.remove(selected_market_id);
+            }
         }
-        if(confirm_qty > ret_rem_qty ) //确认量大于挂牌量
+        else
         {
-            //TODO event 
-            return uint(-1);
+            return temp_market.rem_qty_;
         }
-        else if(confirm_qty == ret_rem_qty) //确认量等于挂牌量，删除该条行情
-        {
-            market_map.remove(selected_market_id);
-        }
-        else //确立量小于挂牌量，更新成交量，剩余量
-        {
-            market_map.update(selected_market_id, ret_deal_qty + confirm_qty, ret_rem_qty - confirm_qty);
-        }
-        /*
+
         address empty_addr;
 
         UserList user_list  = UserList(contract_address.getContractAddress(user_list_name));
         assert(user_list != empty_addr);
 
-        User sell_user      = User(user_list.getUserInfo(sell_user_id));
-        User buy_user       = User(user_list.getUserInfo(buy_user_id));
+        User sell_user      = User(user_list.getUserAgentAddr(temp_market.user_id_));
+        User buy_user       = User(user_list.getUserAgentAddr(buy_user_id));
         assert(sell_user != empty_addr);
         assert(buy_user != empty_addr);
-        */
-        
        
-       /*
         //更新卖方挂牌请求
-        User user_sell = User(data_map[market_id].seller_addr_);
-        user_sell.updateListReq(market_id, deal_qty);
-        
-        //创建卖方合同
-        uint con_id_tmp = user_sell.dealSellContract(data_map[market_id].sheet_id_, "卖",  data_map[market_id].price_, deal_qty, user_id);
-        //创建买方合同
-        User user_buy = User(msg.sender);
-        user_buy.dealBuyContract(con_id_tmp,data_map[market_id].sheet_id_, "买",  data_map[market_id].price_, deal_qty, data_map[market_id].user_id_);
-        
-        */
+        sell_user.updateListReq(selected_market_id, confirm_qty);
+
+        //记录成交
+        uint time = now;
+        uint trade_id = getTradeID(); 
+        sell_user.recordTrade(time, trade_id, buy_user_id, "卖", confirm_qty, selected_market_id);
+        buy_user.recordTrade(time, trade_id, temp_market.user_id_,"买", confirm_qty, selected_market_id);
         return 0;
     }
-    //插入行情           
-    function insertList1(uint sheet_id,
-                        string  class_id, string  make_date,   
-                        string  lev_id, string  wh_id, string  place_id)
-    {
-        market_id = getMarketID();
-         
-        data_map[market_id].date_ = now;
-        data_map[market_id].id_ = market_id;
-        data_map[market_id].sheet_id_ = sheet_id;
-        data_map[market_id].class_id_ = class_id;
-        data_map[market_id].make_date_ = make_date;
-        data_map[market_id].lev_id_ = lev_id;
-        data_map[market_id].wh_id_ = wh_id;
-        data_map[market_id].place_id_ = place_id;
-        data_map[market_id].type_ = "一口价";
-    }
-    function insertList2(uint price, uint quo_qty, uint deal_qty,
-                            uint rem_qty, string  quo_deadline, 
-                            uint dlv_unit, string user_id ) returns(uint)
-    {
-        data_map[market_id].price_ = price;
-        data_map[market_id].qty_ = quo_qty;
-        data_map[market_id].deal_qty_ = deal_qty;
-        data_map[market_id].rem_qty_ = rem_qty;
-        data_map[market_id].deadline_ = quo_deadline;
-        data_map[market_id].dlv_unit_ = dlv_unit;
-        data_map[market_id].user_id_ = user_id;
-        data_map[market_id].seller_addr_ = msg.sender;
-        data_map[market_id].state = true;  
-                  
-        return market_id;        
-    }
-  
-  
-    //摘牌
-    function delList(string user_id, uint market_id, uint deal_qty) returns(uint)
-    {
-        if(deal_qty > data_map[market_id].rem_qty_ )
-        {
-            //TODO event
-            return uint(-1);
-        }
-        
-        //更新成交量，剩余量
-        data_map[market_id].deal_qty_  =   deal_qty ;
-        data_map[market_id].rem_qty_   -=  deal_qty ;
-        
-        //更新卖方挂牌请求
-        User user_sell = User(data_map[market_id].seller_addr_);
-        user_sell.updateListReq(market_id, deal_qty);
-        
-        //创建卖方合同
-        uint con_id_tmp = user_sell.dealSellContract(data_map[market_id].sheet_id_, "卖",  data_map[market_id].price_, deal_qty, user_id);
-        //创建买方合同
-        User user_buy = User(msg.sender);
-        user_buy.dealBuyContract(con_id_tmp,data_map[market_id].sheet_id_, "买",  data_map[market_id].price_, deal_qty, data_map[market_id].user_id_);
-        
-        //仓单全部成交，删除该条行情
-        if(data_map[market_id].rem_qty_ == 0 )
-            delete data_map[market_id];
-            
-        return 0;
-        
-        
-    }
-    
 }
