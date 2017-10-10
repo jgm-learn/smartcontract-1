@@ -205,7 +205,7 @@ contract TestUser
 
 		//获取双方的合同数据
 		var(a_length,a_ret_trade_id, a_ret_sheet_id, a_ret_bs, a_ret_opp_id) = user_a.getTradeMap(1);
-		var(b_length,b_ret_trade_id, b_ret_sheet_id, b_ret_bs, b_ret_opp_id) = user_b.getTradeMap(0);
+		var(b_length,b_ret_trade_id, b_ret_sheet_id, b_ret_bs, b_ret_opp_id) = user_b.getTradeMap(1);
 
 		
 		Assert.equal(ret, 0, "user_b.agreeNeg ret = 0");
