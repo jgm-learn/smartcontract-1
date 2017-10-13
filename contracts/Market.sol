@@ -90,6 +90,8 @@ contract  Market
         market_map.insert(market_id, temp_market);
         return market_id;        
     }
+
+    //获取行情
     function getMarket_1(uint market_id)
         returns (
             uint        date,    //挂牌日期
@@ -144,15 +146,19 @@ contract  Market
         rem_qty         = temp_value.rem_qty_;
         sell_user_id    = temp_value.user_id_;
     }
+
     function getMarketNum() returns(uint)
     {
         return market_map.size();
     }
+
     function getMarketIdByIndex(uint index) returns(uint)
     {
         return market_map.getKey(index);
     }
-    function updateMarket(bytes32 buy_user_id, uint selected_market_id, uint confirm_qty) returns(uint)
+
+    //更新行情
+    function updateMarket(bytes32 buy_user_id, uint selected_market_id, uint confirm_qty) returns(int)
     {
         temp_market = market_map.getValue(selected_market_id);
         if(temp_market.rem_qty_ != 0 && confirm_qty != 0 && confirm_qty <= temp_market.rem_qty_)
@@ -160,12 +166,12 @@ contract  Market
             market_map.update(selected_market_id, temp_market.deal_qty_ + confirm_qty, temp_market.rem_qty_ - confirm_qty);
             if(confirm_qty == temp_market.rem_qty_) //确认量等于挂牌量，删除该条行情
             {
-                market_map.remove(selected_market_id);
+                //market_map.remove(selected_market_id);
             }
         }
         else
         {
-            return temp_market.rem_qty_;
+            return -1;
         }
 
         address empty_addr;
@@ -186,6 +192,13 @@ contract  Market
         uint trade_id = getTradeID(); 
         sell_user.recordTrade(time, trade_id, buy_user_id, "卖", confirm_qty, selected_market_id);
         buy_user.recordTrade(time, trade_id, temp_market.user_id_,"买", confirm_qty, selected_market_id);
+
+        //确认量等于挂牌量，删除该条行情
+        if(confirm_qty == temp_market.rem_qty_)         
+        { 
+            market_map.remove(selected_market_id);
+        }
+
         return 0;
     }
 }

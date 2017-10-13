@@ -121,17 +121,24 @@ contract TestUser
 		Assert.equal(market.getMarketNum(), 2, "");
 		Assert.equal(user.getListReqNum(), 2, "");
 	}
+
+    //测试摘牌
 	function testDelistRequest_listqty_greater_delistqty()
 	{
 		//user_a 挂牌
 		uint sell_price = 100;
 		uint sell_qty = 6;
 		user_a.insertSheet(user_a_id,sheet_id,"SR","make_date","level_id","wh_id","产地",all_amount, available_amount, frozen_amount);
+        user_a.insertFunds(1000);      //初始化资金
+
 		var ret_market_id = user_a.listRequest(user_id,sheet_id,sell_price,sell_qty);
 
 		//user_b 摘牌
+        user_b.insertFunds(1000);      //初始化资金
 		uint buy_qty = 2;
 		var ret_delist = user_b.delistRequest(user_b_id, ret_market_id, buy_qty);
+        var ret_a_funds =  user_a.getTotalFunds();
+        var ret_b_funds =  user_b.getTotalFunds();
 
 		//Assert
 		Assert.equal(ret_market_id, 1, "");
@@ -139,20 +146,29 @@ contract TestUser
 		Assert.equal(market.getMarketNum(), 1, "");
 		Assert.equal(user_a.getTradeNum(), 1, "");
 		Assert.equal(user_b.getTradeNum(), 1, "");
+        Assert.equal(ret_a_funds, 1200, "");
+        Assert.equal(ret_b_funds, 800, "");
 		//var(ret_all_amount, ret_available_amount, ret_frozen_amount) = user.getSheetAmount(sheet_id);
 
 	}
+
 	function testDelistRequest_listqty_equal_delistqty()
 	{
 		//user_a 挂牌
 		uint sell_price = 100;
 		uint sell_qty = 6;
 		user_a.insertSheet(user_a_id,sheet_id,"SR","make_date","level_id","wh_id","产地",all_amount, available_amount, frozen_amount);
+        user_a.insertFunds(1000);      //初始化资金
+
 		var ret_market_id = user_a.listRequest(user_id,sheet_id,sell_price,sell_qty);
 
 		//user_b 摘牌
 		uint buy_qty = 6;
+        user_b.insertFunds(1000);      //初始化资金
+
 		var ret_delist = user_b.delistRequest(user_b_id, ret_market_id, buy_qty);
+        var ret_a_funds =  user_a.getTotalFunds();
+        var ret_b_funds =  user_b.getTotalFunds();
 
 		//Assert
 		Assert.equal(ret_market_id, 1, "");
@@ -160,6 +176,8 @@ contract TestUser
 		Assert.equal(market.getMarketNum(), 0, "");
 		Assert.equal(user_a.getTradeNum(), 1, "");
 		Assert.equal(user_b.getTradeNum(), 1, "");
+        Assert.equal(ret_a_funds, 1600, "");
+        Assert.equal(ret_b_funds, 400, "");
 	}
 
 	function testSendNegReq()
@@ -171,6 +189,7 @@ contract TestUser
 		user_a.insertSheet(user_a_id,sheet_id,"SR","make_date","level_id","wh_id","产地",all_amount, available_amount, frozen_amount);
 		//发送协商交易请求
 		user_a.sendNegReq(sheet_id,sell_qty,sell_price,user_b_id);
+
 		var(ret_all_amount, ret_available_amount, ret_frozen_amount) = user_a.getSheetAmount(sheet_id);
 		var(ret_length, ret_sheet_id, ret_price, ret_neg_id, ret_user_sell_id) = user_b.getNegReqRec(0);
 
@@ -194,26 +213,29 @@ contract TestUser
 
 		//创建仓单
 		user_a.insertSheet(user_a_id,sheet_id,"SR","make_date","level_id","wh_id","产地",all_amount, available_amount, frozen_amount);
+        //初始化资金
+        user_a.insertFunds(1000);      
+
 		//发送协商交易请求
 		user_a.sendNegReq(sheet_id,sell_qty,sell_price,user_b_id);
 
-
+        //初始化资金
+        user_b.insertFunds(1000);      
 
 		//同意协商交易
 		ret = user_b.agreeNeg(user_b_id, 1);
-
 
 		//获取双方的合同数据
 		var(a_length,a_ret_trade_id, a_ret_sheet_id, a_ret_bs, a_ret_opp_id) = user_a.getTradeMap(1);
 		var(b_length,b_ret_trade_id, b_ret_sheet_id, b_ret_bs, b_ret_opp_id) = user_b.getTradeMap(1);
 
-		
 		Assert.equal(ret, 0, "user_b.agreeNeg ret = 0");
 		Assert.equal(a_length, 1, "a_length = 1");
 		Assert.equal(a_ret_trade_id, 1, "a_ret_trade_id = 1");
 		Assert.equal(a_ret_sheet_id, sheet_id, "");
 		Assert.equal(a_ret_bs, "卖", "");
 		Assert.equal(a_ret_opp_id, user_b_id,"");
+        Assert.equal(user_a.getTotalFunds(), 1600, "");
 
 
 		Assert.equal(b_length, 1, "b_length = 1");
@@ -221,6 +243,7 @@ contract TestUser
 		Assert.equal(b_ret_sheet_id, sheet_id, "");
 		Assert.equal(b_ret_bs, "买", " b_ret_bs  ");
 		Assert.equal(b_ret_opp_id, user_a_id," b_ret_opp_id = I am user b ");
+        Assert.equal(user_b.getTotalFunds(), 400, "");
 
 	}
 
