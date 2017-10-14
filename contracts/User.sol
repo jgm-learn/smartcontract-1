@@ -96,7 +96,7 @@ contract User
 		//if(user_id != my_user_id) return;
 		sheet_map.insert(sheet_id, StructSheet.value(user_id, sheet_id, 
 					class_id, make_date, lev_id, wh_id, place_id, all_amount,
-					frozen_amount, available_amount));
+					available_amount,frozen_amount));
 	}
 
 	//获取持有者的仓单数量

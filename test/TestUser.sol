@@ -82,9 +82,17 @@ contract TestUser
 		user_b.setUserID(user_b_id);
 
 	}
+	function testInsertsheet_normal()
+	{
+		user.insertSheet(user_id,sheet_id,"SR","make_date","level_id","wh_id","产地",all_amount, frozen_amount, available_amount);
+		var(ret_all_amount, ret_available_amount, ret_frozen_amount) = user.getSheetAmount(sheet_id);
+		Assert.equal(all_amount, ret_all_amount, "");
+		Assert.equal(available_amount, ret_available_amount, "");
+		Assert.equal(frozen_amount, ret_frozen_amount, "");
+	}
 	function testFreeze_exceed_owned_sheet()
 	{
-		user.insertSheet(user_id,sheet_id,"SR","make_date","level_id","wh_id","产地",all_amount, available_amount, frozen_amount);
+		user.insertSheet(user_id,sheet_id,"SR","make_date","level_id","wh_id","产地",all_amount, frozen_amount, available_amount);
 		user.freeze(1, available_amount + 1);
 		var(ret_all_amount, ret_available_amount, ret_frozen_amount) = user.getSheetAmount(sheet_id);
 		Assert.equal(all_amount, ret_all_amount, "");
@@ -100,7 +108,7 @@ contract TestUser
 	{
 		uint sell_price = 100;
 		uint sell_qty = 6;
-		user.insertSheet(user_id,sheet_id,"SR","make_date","level_id","wh_id","产地",all_amount, available_amount, frozen_amount);
+		user.insertSheet(user_id,sheet_id,"SR","make_date","level_id","wh_id","产地",all_amount, frozen_amount, available_amount);
 		var ret_market_id = user.listRequest(user_id,sheet_id,sell_price,sell_qty);
 		var(ret_all_amount, ret_available_amount, ret_frozen_amount) = user.getSheetAmount(sheet_id);
 		Assert.equal(ret_available_amount, available_amount - sell_qty, "");
@@ -112,7 +120,7 @@ contract TestUser
 	{
 		uint sell_price = 100;
 		uint sell_qty = 6;
-		user.insertSheet(user_id,sheet_id,"SR","make_date","level_id","wh_id","产地",all_amount, available_amount, frozen_amount);
+		user.insertSheet(user_id,sheet_id,"SR","make_date","level_id","wh_id","产地",all_amount, frozen_amount, available_amount);
 		var ret_market_id = user.listRequest(user_id,sheet_id,sell_price,sell_qty); //one time
 		ret_market_id = user.listRequest(user_id,sheet_id,sell_price,sell_qty);     //two time
 		var(ret_all_amount, ret_available_amount, ret_frozen_amount) = user.getSheetAmount(sheet_id);
@@ -126,7 +134,7 @@ contract TestUser
 		//user_a 挂牌
 		uint sell_price = 100;
 		uint sell_qty = 6;
-		user_a.insertSheet(user_a_id,sheet_id,"SR","make_date","level_id","wh_id","产地",all_amount, available_amount, frozen_amount);
+		user_a.insertSheet(user_id,sheet_id,"SR","make_date","level_id","wh_id","产地",all_amount, frozen_amount, available_amount);
 		var ret_market_id = user_a.listRequest(user_id,sheet_id,sell_price,sell_qty);
 
 		//user_b 摘牌
@@ -134,11 +142,11 @@ contract TestUser
 		var ret_delist = user_b.delistRequest(user_b_id, ret_market_id, buy_qty);
 
 		//Assert
-		Assert.equal(ret_market_id, 1, "");
-		Assert.equal(ret_delist, 0, "");
-		Assert.equal(market.getMarketNum(), 1, "");
-		Assert.equal(user_a.getTradeNum(), 1, "");
-		Assert.equal(user_b.getTradeNum(), 1, "");
+		Assert.equal(ret_market_id, 1, "ret_market_id == 1");
+		Assert.equal(ret_delist, 0, "red_delist == 0");
+		Assert.equal(market.getMarketNum(), 1, "market_num == 1");
+		Assert.equal(user_a.getTradeNum(), 1, "a_trade_num == 1");
+		Assert.equal(user_b.getTradeNum(), 1, "b_trade_num == 1");
 		//var(ret_all_amount, ret_available_amount, ret_frozen_amount) = user.getSheetAmount(sheet_id);
 
 	}
@@ -147,8 +155,8 @@ contract TestUser
 		//user_a 挂牌
 		uint sell_price = 100;
 		uint sell_qty = 6;
-		user_a.insertSheet(user_a_id,sheet_id,"SR","make_date","level_id","wh_id","产地",all_amount, available_amount, frozen_amount);
-		var ret_market_id = user_a.listRequest(user_id,sheet_id,sell_price,sell_qty);
+		user_a.insertSheet(user_a_id,sheet_id,"SR","make_date","level_id","wh_id","产地",all_amount, frozen_amount, available_amount);
+		var ret_market_id = user_a.listRequest(user_a_id,sheet_id,sell_price,sell_qty);
 
 		//user_b 摘牌
 		uint buy_qty = 6;
@@ -168,7 +176,7 @@ contract TestUser
 		uint sell_qty = 6;
 
 		//创建仓单
-		user_a.insertSheet(user_a_id,sheet_id,"SR","make_date","level_id","wh_id","产地",all_amount, available_amount, frozen_amount);
+		user_a.insertSheet(user_a_id,sheet_id,"SR","make_date","level_id","wh_id","产地",all_amount, frozen_amount, available_amount);
 		//发送协商交易请求
 		user_a.sendNegReq(sheet_id,sell_qty,sell_price,user_b_id);
 		var(ret_all_amount, ret_available_amount, ret_frozen_amount) = user_a.getSheetAmount(sheet_id);
@@ -193,7 +201,8 @@ contract TestUser
 		uint sell_qty = 6;
 
 		//创建仓单
-		user_a.insertSheet(user_a_id,sheet_id,"SR","make_date","level_id","wh_id","产地",all_amount, available_amount, frozen_amount);
+		user_a.insertSheet(user_a_id,sheet_id,"SR","make_date","level_id","wh_id","产地",all_amount, frozen_amount, available_amount);
+		//发送协商交易请求
 		//发送协商交易请求
 		user_a.sendNegReq(sheet_id,sell_qty,sell_price,user_b_id);
 
