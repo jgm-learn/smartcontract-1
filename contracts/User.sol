@@ -12,6 +12,7 @@ import "./lib/StructMarket.sol";
 import "./lib/StructFunds.sol";
 import "./lib/LibFunds.sol";
 
+
 contract User
 {
     //挂牌请求数据结构
@@ -67,12 +68,13 @@ contract User
     bytes32                tmp_id;      //临时id变量
     StructMarket.value     temp_market; //临时行情变量
     StructTrade.value      tmp_trade;   //临时合同变量
+    StructSheet.value      tmp_sheet;  //临时仓单变量
 
-    ListRequest[]          list_req;     
-    //协商交易请求列表
+    ListRequest[]                     list_req; //协商交易请求列表     
     NegSendRequest[]                  neg_req_send_array; 
     NegReceiveRequest[]               neg_req_receive_array; 
-    //
+
+
     function setContractAddress(address addr)
     {
         contract_address = ContractAddress(addr); 
@@ -94,6 +96,7 @@ contract User
         my_user_id = id;
     }
 
+    //初始化仓单
     function insertSheet(bytes32 user_id, uint sheet_id, bytes32 class_id, bytes32 make_date,bytes32 lev_id, bytes32 wh_id, bytes32 place_id, uint all_amount,uint frozen_amount, uint available_amount)
     {
         //if(user_id != my_user_id) return;
@@ -111,6 +114,37 @@ contract User
         frozen_amount = sheet.frozen_amount_;
     }
 
+    //获取持有者的仓单总数量
+    function getSheetAllAmount(uint sheet_id) returns (uint all_amount)
+    {
+        StructSheet.value memory sheet = sheet_map.getValue(sheet_id);
+        all_amount = sheet.all_amount_;
+    }
+
+    //获取持有者的仓单可用数量
+    function getSheetAvailableAmount(uint sheet_id) returns (uint available_amount)
+    {
+        StructSheet.value memory sheet = sheet_map.getValue(sheet_id);
+        available_amount = sheet.available_amount_;
+    }
+    
+    //获取持有者的仓单冻结数量
+    function getSheetFrozenAmount(uint sheet_id) returns (uint frozen_amount)
+    {
+        StructSheet.value memory sheet = sheet_map.getValue(sheet_id);
+        frozen_amount = sheet.frozen_amount_;
+    }
+
+    //获取仓单信息
+    function getSheetAttribute(uint sheet_id) returns(bytes32 class_id,bytes32 make_date,bytes32 lev_id,bytes32 wh_id,bytes32 place_id)
+    {
+        tmp_sheet   =   sheet_map.getValue(sheet_id);
+        class_id    =   tmp_sheet.class_id_;
+        make_date   =   tmp_sheet.make_date_;
+        lev_id      =   tmp_sheet.lev_id_;
+        wh_id       =   tmp_sheet.wh_id_;
+        place_id    =   tmp_sheet.place_id_;
+    }
     //初始化资金
     function insertFunds(uint qty)
     {
@@ -233,20 +267,47 @@ contract User
         getMarketTemp_2(market_id);
         trade_map.insert(trade_id,trade_date, opp_user_id, bs, confirm_qty,temp_market); 
 
-        if(bs == "卖")
-            {
-                funds.insert(confirm_qty * temp_market.price_);
-            }
-            else
-            {
-                funds.reduce(confirm_qty * temp_market.price_);
-            }
+        if(bs == "买")
+              funds.freeze(confirm_qty * temp_market.price_);
+
          ret = 0;
     }
 
     function getTradeNum() returns (uint)
     {
         return trade_map.size();
+    }
+
+    //管理员确认
+    function confirmList(uint trade_id) 
+    {
+        uint sheet_id   =   trade_map.data[trade_id].sheet_id_; 
+        uint qty        =   trade_map.data[trade_id].trade_qty_;
+        uint price      =   trade_map.data[trade_id].price_;
+        bytes32 user_id =   trade_map.data[trade_id].user_id_;
+        bytes32 opp_id  =   trade_map.data[trade_id].opp_id_;
+
+        if(trade_map.data[trade_id].bs_  == "卖")
+            {
+                sheet_map.reduce(sheet_id,qty);
+                funds.insert(qty * price);
+            }
+        else
+            {
+                if(sheet_map.isExisted(sheet_id))
+                        sheet_map.add(sheet_id,qty);
+                else
+                    {
+                        //初始化user_list
+                        user_list =  UserList(contract_address.getContractAddress(user_list_name));
+                        
+                        User user_sell = User(user_list.getUserAgentAddr(opp_id));
+                        var(class_id,make_date,lev_id,wh_id,place_id)= user_sell.getSheetAttribute(sheet_id); 
+                        sheet_map.insert(sheet_id, StructSheet.value(user_id, sheet_id, class_id, make_date, lev_id, wh_id, place_id,qty,0,qty));
+                        funds.reduce(qty * price);
+                    }
+            }
+
     }
 
     //更新卖方挂牌请求
@@ -267,11 +328,11 @@ contract User
     //冻结仓单
     function freeze(uint sheet_id, uint amount) returns (bool)
     {
-        var(all_amount, available_amount, frozen_amount) = getSheetAmount(sheet_id);
+        var available_amount  = getSheetAvailableAmount(sheet_id);
         if(amount > available_amount)  
             return false;
 
-        sheet_map.update(sheet_id, all_amount, available_amount - amount, frozen_amount + amount);         
+        sheet_map.freeze(sheet_id, amount);         
         return true;
     }
 

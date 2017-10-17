@@ -8,11 +8,11 @@ import "../contracts/UserList.sol";
 import "../contracts/CreateID.sol";
 contract TestUser
 {
-	User user;
+	User user;// {{{
 	UserList user_list;
 	Market market;
 	CreateID create_id;
-	ContractAddress contract_addr;
+	ContractAddress contract_addr;// }}}
 	string market_name;
 	string create_id_name;
 	string user_list_name;
@@ -32,8 +32,8 @@ contract TestUser
 	{
 
 		sheet_id            = 12345;
-		all_amount          = 40;
-		available_amount    = 30;
+		all_amount          = 60;
+		available_amount    = 40;
 		frozen_amount       = 20;
 
 		user            = new User();
@@ -82,6 +82,7 @@ contract TestUser
 		user_b.setUserID(user_b_id);
 
 	}
+
 	function testFreeze_exceed_owned_sheet()
 	{
 		user.insertSheet(user_id,sheet_id,"SR","make_date","level_id","wh_id","产地",all_amount, available_amount, frozen_amount);
@@ -96,6 +97,8 @@ contract TestUser
 		address market_addr = contract_addr.getContractAddress(market_name);
 		Assert.equal(market_addr, market, "");
 	}
+
+    //测试摘牌
 	function testListRequest_one_time()
 	{
 		uint sell_price = 100;
@@ -103,6 +106,7 @@ contract TestUser
 		user.insertSheet(user_id,sheet_id,"SR","make_date","level_id","wh_id","产地",all_amount, available_amount, frozen_amount);
 		var ret_market_id = user.listRequest(user_id,sheet_id,sell_price,sell_qty);
 		var(ret_all_amount, ret_available_amount, ret_frozen_amount) = user.getSheetAmount(sheet_id);
+
 		Assert.equal(ret_available_amount, available_amount - sell_qty, "");
 		Assert.equal(ret_frozen_amount, frozen_amount + sell_qty, "");
 		Assert.equal(market.getMarketNum(), 1, "");
@@ -138,7 +142,7 @@ contract TestUser
 		uint buy_qty = 2;
 		var ret_delist = user_b.delistRequest(user_b_id, ret_market_id, buy_qty);
         var ret_a_funds =  user_a.getTotalFunds();
-        var ret_b_funds =  user_b.getTotalFunds();
+        var ret_b_funds =  user_b.getAvaFunds();
 
 		//Assert
 		Assert.equal(ret_market_id, 1, "");
@@ -146,7 +150,7 @@ contract TestUser
 		Assert.equal(market.getMarketNum(), 1, "");
 		Assert.equal(user_a.getTradeNum(), 1, "");
 		Assert.equal(user_b.getTradeNum(), 1, "");
-        Assert.equal(ret_a_funds, 1200, "");
+        Assert.equal(ret_a_funds, 1000, "");
         Assert.equal(ret_b_funds, 800, "");
 		//var(ret_all_amount, ret_available_amount, ret_frozen_amount) = user.getSheetAmount(sheet_id);
 
@@ -168,7 +172,7 @@ contract TestUser
 
 		var ret_delist = user_b.delistRequest(user_b_id, ret_market_id, buy_qty);
         var ret_a_funds =  user_a.getTotalFunds();
-        var ret_b_funds =  user_b.getTotalFunds();
+        var ret_b_funds =  user_b.getAvaFunds();
 
 		//Assert
 		Assert.equal(ret_market_id, 1, "");
@@ -176,10 +180,47 @@ contract TestUser
 		Assert.equal(market.getMarketNum(), 0, "");
 		Assert.equal(user_a.getTradeNum(), 1, "");
 		Assert.equal(user_b.getTradeNum(), 1, "");
-        Assert.equal(ret_a_funds, 1600, "");
+        Assert.equal(ret_a_funds, 1000, "");
         Assert.equal(ret_b_funds, 400, "");
 	}
 
+    //测试挂牌确认函数
+    function testConfirmList()
+    {
+		//user_a 挂牌
+		uint sell_price = 100;
+		uint sell_qty = 6;
+		user_a.insertSheet(user_a_id,sheet_id,"SR","make_date","level_id","wh_id","产地",all_amount, available_amount, frozen_amount);
+        user_a.insertFunds(1000);      //初始化资金
+
+		var ret_market_id = user_a.listRequest(user_id,sheet_id,sell_price,sell_qty);
+
+		//user_b 摘牌
+		uint buy_qty = 2;
+        user_b.insertFunds(1000);      //初始化资金
+
+		var ret_delist  = user_b.delistRequest(user_b_id, ret_market_id, buy_qty);//摘牌
+        user_a.confirmList(1);         //确认
+        user_b.confirmList(1);         //确认
+        var ret_a_funds     =  user_a.getTotalFunds();
+        var ret_b_funds     =  user_b.getTotalFunds();
+        var ret_a_sheet     =  user_a.getSheetAllAmount(sheet_id);
+        var ret_b_sheet     =  user_b.getSheetAllAmount(sheet_id);
+
+		//Assert
+		Assert.equal(ret_market_id, 1, "");
+		Assert.equal(ret_delist, 0, "");
+		Assert.equal(market.getMarketNum(), 1, "");
+		Assert.equal(user_a.getTradeNum(), 1, "");
+		Assert.equal(user_b.getTradeNum(), 1, "");
+        Assert.equal(ret_a_funds, 1200, "");
+        Assert.equal(ret_b_funds, 800, "");
+        Assert.equal(ret_a_sheet,58, "");
+        Assert.equal(ret_b_sheet,2, "");
+	
+    }
+
+    //测试协商交易
 	function testSendNegReq()
 	{
 		uint sell_price = 100;
