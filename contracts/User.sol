@@ -97,9 +97,10 @@ contract User
     }
 
     //初始化仓单
-    function insertSheet(bytes32 user_id, uint sheet_id, bytes32 class_id, bytes32 make_date,bytes32 lev_id, bytes32 wh_id, bytes32 place_id, uint all_amount,uint frozen_amount, uint available_amount)
+    function insertSheet(bytes32 user_id, bytes32 class_id, bytes32 make_date,bytes32 lev_id, bytes32 wh_id, bytes32 place_id, uint all_amount,uint frozen_amount, uint available_amount)
     {
-        //if(user_id != my_user_id) return;
+        create_id =  CreateID(contract_address.getContractAddress(create_id_name));
+        uint sheet_id = create_id.getSheetID();
         sheet_map.insert(sheet_id, StructSheet.value(user_id, sheet_id, 
                                                      class_id, make_date, lev_id, wh_id, place_id, all_amount,
                                                      frozen_amount, available_amount));
@@ -278,7 +279,7 @@ contract User
         return trade_map.size();
     }
 
-    //管理员确认
+    //管理员确认挂牌交易
     function confirmList(uint trade_id) 
     {
         uint sheet_id   =   trade_map.data[trade_id].sheet_id_; 
@@ -304,10 +305,10 @@ contract User
                         User user_sell = User(user_list.getUserAgentAddr(opp_id));
                         var(class_id,make_date,lev_id,wh_id,place_id)= user_sell.getSheetAttribute(sheet_id); 
                         sheet_map.insert(sheet_id, StructSheet.value(user_id, sheet_id, class_id, make_date, lev_id, wh_id, place_id,qty,0,qty));
-                        funds.reduce(qty * price);
                     }
-            }
 
+                funds.reduce(qty * price);
+            }
     }
 
     //更新卖方挂牌请求
@@ -450,9 +451,9 @@ contract User
                         break;
                 }
 
-                trade_map.insert1(trade_id, StructTrade.value(date,trade_id,neg_req_send_array[i].sheet_id_,bs,neg_req_send_array[i].price_,neg_req_send_array[i].qty_,sell_user_id,buy_user_id));
+                trade_map.insert(trade_id, StructTrade.value(date,trade_id,neg_req_send_array[i].sheet_id_,bs,neg_req_send_array[i].price_,neg_req_send_array[i].qty_,sell_user_id,buy_user_id));
 
-                funds.insert(neg_req_send_array[i].qty_ * neg_req_send_array[i].price_);
+                //funds.insert(neg_req_send_array[i].qty_ * neg_req_send_array[i].price_);
             }
             else
                 {
@@ -466,9 +467,10 @@ contract User
                             break;
                     }
 
-                    trade_map.insert1(trade_id, StructTrade.value(date,trade_id,neg_req_receive_array[k].sheet_id_,bs,neg_req_receive_array[k].price_,neg_req_receive_array[k].qty_,buy_user_id,sell_user_id));
+                    trade_map.insert(trade_id, StructTrade.value(date,trade_id,neg_req_receive_array[k].sheet_id_,bs,neg_req_receive_array[k].price_,neg_req_receive_array[k].qty_,buy_user_id,sell_user_id));
 
-                    funds.reduce(neg_req_receive_array[k].qty_ * neg_req_receive_array[k].price_);
+                    //funds.reduce(neg_req_receive_array[k].qty_ * neg_req_receive_array[k].price_);
+                    funds.freeze(neg_req_receive_array[k].qty_ * neg_req_receive_array[k].price_);
                     return 0;
                 }
     }
@@ -483,6 +485,38 @@ contract User
         sheet_id    =   tmp_trade.sheet_id_;
         bs          =   tmp_trade.bs_;
         opp_id      =   tmp_trade.opp_id_;
+    }
+
+    //管理员确认协商交易
+    function confirmNeg(uint trade_id) 
+    {
+        uint sheet_id   =   trade_map.data[trade_id].sheet_id_; 
+        uint qty        =   trade_map.data[trade_id].trade_qty_;
+        uint price      =   trade_map.data[trade_id].price_;
+        bytes32 user_id =   trade_map.data[trade_id].user_id_;
+        bytes32 opp_id  =   trade_map.data[trade_id].opp_id_;
+
+        if(trade_map.data[trade_id].bs_  == "卖")
+            {
+                sheet_map.reduce(sheet_id,qty);
+                funds.insert(qty * price);
+            }
+        else
+            {
+                if(sheet_map.isExisted(sheet_id))
+                        sheet_map.add(sheet_id,qty);
+                else
+                    {
+                        //初始化user_list
+                        user_list =  UserList(contract_address.getContractAddress(user_list_name));
+                        
+                        User user_sell = User(user_list.getUserAgentAddr(opp_id));
+                        var(class_id,make_date,lev_id,wh_id,place_id)= user_sell.getSheetAttribute(sheet_id); 
+                        sheet_map.insert(sheet_id, StructSheet.value(user_id, sheet_id, class_id, make_date, lev_id, wh_id, place_id,qty,0,qty));
+                    }
+
+                funds.reduce(qty * price);
+            }
 
     }
 } 

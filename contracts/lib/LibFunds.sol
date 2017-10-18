@@ -16,14 +16,11 @@ library LibFunds
     }
 
 
-    function reduce(Funds storage self, uint qty) internal returns (bool)
+    function reduce(Funds storage self, uint qty) internal 
     {
-        if(self.data.ava_funds_ < qty)
-            return false;
 
         self.data.total_funds_      -=      qty;
-        self.data.frozen_funds_      -=      qty;
-        return true;
+        self.data.frozen_funds_     -=      qty;
     }
 
     function freeze(Funds storage self, uint qty) internal returns (bool)
