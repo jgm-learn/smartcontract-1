@@ -60,9 +60,10 @@ contract User
 	string                 user_list_name;
 	bytes32                my_user_id;
 	bytes32				   tmp_id;		//临时id变量
-	StructMarket.value     temp_market; //临时行情变量
-	StructTrade.value	   tmp_trade;	//临时合同变量
 
+    StructMarket.value     temp_market; //临时行情变量
+	StructTrade.value	   tmp_trade;	//临时合同变量
+    StructSheet.value      tmp_sheet;   //临时仓单变量
 	ListRequest[]          list_req;     
 	//协商交易请求列表
 	NegSendRequest[]                  neg_req_send_array; 
@@ -358,6 +359,33 @@ contract User
 		sheet_id	=	tmp_trade.sheet_id_;
 		bs			=	tmp_trade.bs_;
 		opp_id		=	tmp_trade.opp_id_;
-	
-	}
+    }
+	//获取marketid
+    function getMarketID() returns(uint ret_market_id)
+    {
+        create_id =  CreateID(contract_address.getContractAddress(create_id_name));
+        ret_market_id = create_id.getMarketID();
+    }
+    //获取sheetMap元素个数
+    function getSheetMapNum() returns(uint)
+    {
+       return sheet_map.size();
+    }
+    
+    //获取sheetMap元素信息
+    function getSheetMap(uint index) returns(bytes32 user_id, uint sheet_id, bytes32 class_id, bytes32 make_date, bytes32 level_id, bytes32 wh_id, bytes32 place_id, uint all_amount, uint avail_amount, uint frozen_amount)
+    {
+        tmp_sheet = sheet_map.getValueByIndex(index);
+        user_id = tmp_sheet.user_id_;
+        sheet_id = tmp_sheet.sheet_id_;
+        class_id = tmp_sheet.class_id_;
+        make_date = tmp_sheet.make_date_;
+        level_id = tmp_sheet.lev_id_;
+        wh_id = tmp_sheet.wh_id_;
+        place_id = tmp_sheet.place_id_;
+        all_amount = tmp_sheet.all_amount_;
+        avail_amount = tmp_sheet.available_amount_;
+        frozen_amount = tmp_sheet.frozen_amount_; 
+    }
+
 } 
