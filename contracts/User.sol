@@ -371,12 +371,31 @@ contract User
     {
        return sheet_map.size();
     }
-    
+    function bytes32ToString(bytes32 x) constant returns (string) 
+    {
+            bytes memory bytesString = new bytes(32);
+            uint charCount = 0;
+            for (uint j = 0; j < 32; j++) 
+            {
+                    byte char = byte(bytes32(uint(x) * 2 ** (8 * j)));
+                    if (char != 0) 
+                    {
+                            bytesString[charCount] = char;
+                            charCount++;
+                    }
+            }
+            bytes memory bytesStringTrimmed = new bytes(charCount);
+            for (j = 0; j < charCount; j++) 
+            {
+                    bytesStringTrimmed[j] = bytesString[j];
+            }
+            return string(bytesStringTrimmed);
+    }
     //获取sheetMap元素信息
-    function getSheetMap(uint index) returns(bytes32 user_id, uint sheet_id, bytes32 class_id, bytes32 make_date, bytes32 level_id, bytes32 wh_id, bytes32 place_id, uint all_amount, uint avail_amount, uint frozen_amount)
+    function getSheetMap(uint index) returns(string user_id, uint sheet_id, bytes32 class_id, bytes32 make_date, bytes32 level_id, bytes32 wh_id, bytes32 place_id, uint all_amount, uint avail_amount, uint frozen_amount)
     {
         tmp_sheet = sheet_map.getValueByIndex(index);
-        user_id = tmp_sheet.user_id_;
+        user_id = bytes32ToString(tmp_sheet.user_id_);
         sheet_id = tmp_sheet.sheet_id_;
         class_id = tmp_sheet.class_id_;
         make_date = tmp_sheet.make_date_;
