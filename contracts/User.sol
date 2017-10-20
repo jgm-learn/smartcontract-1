@@ -392,16 +392,20 @@ contract User
             return string(bytesStringTrimmed);
     }
     //获取sheetMap元素信息
-    function getSheetMap(uint index) returns(string user_id, uint sheet_id, bytes32 class_id, bytes32 make_date, bytes32 level_id, bytes32 wh_id, bytes32 place_id, uint all_amount, uint avail_amount, uint frozen_amount)
+    function getSheetMap_1(uint index) returns(string user_id, uint sheet_id,string class_id, string make_date, string level_id, string wh_id, string place_id)
     {
         tmp_sheet = sheet_map.getValueByIndex(index);
         user_id = bytes32ToString(tmp_sheet.user_id_);
         sheet_id = tmp_sheet.sheet_id_;
-        class_id = tmp_sheet.class_id_;
-        make_date = tmp_sheet.make_date_;
-        level_id = tmp_sheet.lev_id_;
-        wh_id = tmp_sheet.wh_id_;
-        place_id = tmp_sheet.place_id_;
+        class_id = bytes32ToString(tmp_sheet.class_id_);
+        make_date = bytes32ToString(tmp_sheet.make_date_);
+        level_id = bytes32ToString(tmp_sheet.lev_id_);
+        wh_id = bytes32ToString(tmp_sheet.wh_id_);
+        place_id = bytes32ToString(tmp_sheet.place_id_);
+    }
+    function getSheetMap_2(uint index) returns(uint all_amount, uint avail_amount, uint frozen_amount)
+    {
+        tmp_sheet = sheet_map.getValueByIndex(index);
         all_amount = tmp_sheet.all_amount_;
         avail_amount = tmp_sheet.available_amount_;
         frozen_amount = tmp_sheet.frozen_amount_; 
