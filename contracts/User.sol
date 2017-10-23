@@ -9,6 +9,7 @@ import "./lib/StructSheet.sol";
 import "./lib/LibTradeMap.sol";
 import "./lib/StructTrade.sol";
 import "./lib/StructMarket.sol";
+
 contract User
 {
 	//挂牌请求数据结构
@@ -50,7 +51,7 @@ contract User
 	LibSheetMap.SheetMap   sheet_map;
 	LibTradeMap.TradeMap   trade_map;
 
-	Market                 market; 
+    Market                 market; 
 	CreateID               create_id;
 	UserList               user_list;
 
@@ -68,7 +69,7 @@ contract User
 	//协商交易请求列表
 	NegSendRequest[]                  neg_req_send_array; 
 	NegReceiveRequest[]               neg_req_receive_array; 
-	//
+
 	function setContractAddress(address addr)
 	{
 		contract_address = ContractAddress(addr); 
@@ -109,9 +110,8 @@ contract User
 		frozen_amount = sheet.frozen_amount_;
 	}
 
-
 	//挂牌请求 "zhang",0,10,20
-	function listRequest(bytes32 seller_user_id, uint sheet_id, uint price, uint sell_qty) returns(uint ret_market_id)
+	function listRequest(uint list_date,bytes32 seller_user_id, uint sheet_id, uint price, uint sell_qty) returns(uint ret_market_id)
 	{
 		var sheet = sheet_map.getValue(sheet_id);
 		if(sheet.available_amount_ == 0)
@@ -120,7 +120,7 @@ contract User
 			return uint(-1);
 		}
 		market =  Market(contract_address.getContractAddress(market_name));
-		market.insertMarket_1(sheet.sheet_id_,sheet.class_id_, sheet.make_date_,sheet.lev_id_, sheet.wh_id_, sheet.place_id_);
+		market.insertMarket_1(list_date,sheet.sheet_id_,sheet.class_id_, sheet.make_date_,sheet.lev_id_, sheet.wh_id_, sheet.place_id_);
 		//TODO modify deadline、dlv_unit
 		ret_market_id = market.insertMarket_2(price, sell_qty, 0, sell_qty, "deadline", 5, sheet.user_id_ );
 		if(ret_market_id >0)
@@ -371,8 +371,8 @@ contract User
     {
        return sheet_map.size();
     }
-    function bytes32ToString(bytes32 x) constant returns (string) 
-    {
+    
+    function bytes32ToString(bytes32 x) returns (string){
             bytes memory bytesString = new bytes(32);
             uint charCount = 0;
             for (uint j = 0; j < 32; j++) 
