@@ -11,25 +11,30 @@ library LibFunds
 
     function insert(Funds storage self, uint qty)  internal 
     {
-        self.data.total_funds_      +=      qty;
-        self.data.ava_funds_         +=      qty;
+        self.data.total_funds_      +=      qty * 100;
+        self.data.ava_funds_         +=      qty * 100;
     }
 
+    function deductFee(Funds storage self, uint qty) internal
+    {
+        self.data.total_funds_      -=      qty;
+        self.data.ava_funds_        -=      qty;
+    }
 
     function reduce(Funds storage self, uint qty) internal 
     {
 
-        self.data.total_funds_      -=      qty;
-        self.data.frozen_funds_     -=      qty;
+        self.data.total_funds_      -=      qty * 100;
+        self.data.frozen_funds_     -=      qty * 100;
     }
 
     function freeze(Funds storage self, uint qty) internal returns (bool)
     {
-        if(self.data.ava_funds_ < qty)
+        if(self.data.ava_funds_ < (qty * 100))
             return false;
 
-        self.data.ava_funds_        -=   qty;
-        self.data.frozen_funds_     +=   qty;
+        self.data.ava_funds_        -=   qty * 100;
+        self.data.frozen_funds_     +=   qty * 100;
         return true;
     }
 

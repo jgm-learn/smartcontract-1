@@ -98,7 +98,7 @@ contract TestUser
 		Assert.equal(market_addr, market, "");
 	}
 
-    //测试摘牌
+    //测试挂牌
 	function testListRequest_one_time()
 	{
 		uint sell_price = 100;
@@ -140,6 +140,7 @@ contract TestUser
 
 		//user_b 摘牌
         user_b.insertFunds(1000);      //初始化资金
+
 		uint buy_qty = 2;
 		var ret_delist = user_b.delistRequest(user_b_id, ret_market_id, buy_qty);
         var ret_a_funds =  user_a.getTotalFunds();
@@ -151,8 +152,8 @@ contract TestUser
 		Assert.equal(market.getMarketNum(), 1, "");
 		Assert.equal(user_a.getTradeNum(), 1, "");
 		Assert.equal(user_b.getTradeNum(), 1, "");
-        Assert.equal(ret_a_funds, 1000, "");
-        Assert.equal(ret_b_funds, 800, "");
+        Assert.equal(ret_a_funds, 100000, "");
+        Assert.equal(ret_b_funds, 80000, "");
 		//var(ret_all_amount, ret_available_amount, ret_frozen_amount) = user.getSheetAmount(sheet_id);
 
 	}
@@ -181,8 +182,8 @@ contract TestUser
 		Assert.equal(market.getMarketNum(), 0, "");
 		Assert.equal(user_a.getTradeNum(), 1, "");
 		Assert.equal(user_b.getTradeNum(), 1, "");
-        Assert.equal(ret_a_funds, 1000, "");
-        Assert.equal(ret_b_funds, 400, "");
+        Assert.equal(ret_a_funds, 100000, "");
+        Assert.equal(ret_b_funds, 40000, "");
 	}
 
     //测试挂牌管理员确认函数 挂牌量为6,摘牌量为2
@@ -192,13 +193,15 @@ contract TestUser
 		uint sell_price = 100;
 		uint sell_qty = 6;
 		user_a.insertSheet(user_a_id,"SR","make_date","level_id","wh_id","产地",all_amount, available_amount, frozen_amount);
-        user_a.insertFunds(1000);      //初始化资金
+        user_a.insertFunds(1000);       //初始化资金
+        user_a.setFee(3);               //设置手续费比率
 
 		var ret_market_id = user_a.listRequest(user_id,sheet_id,sell_price,sell_qty);
 
 		//user_b 摘牌
 		uint buy_qty = 2;
-        user_b.insertFunds(1000);      //初始化资金
+        user_b.insertFunds(1000);       //初始化资金
+        user_b.setFee(3);               //设置手续费比率
 
 		var ret_delist  = user_b.delistRequest(user_b_id, ret_market_id, buy_qty);//摘牌
         user_a.confirmList(1);         //确认
@@ -214,8 +217,8 @@ contract TestUser
 		Assert.equal(market.getMarketNum(), 1, "");
 		Assert.equal(user_a.getTradeNum(), 1, "");
 		Assert.equal(user_b.getTradeNum(), 1, "");
-        Assert.equal(ret_a_funds, 1200, "");
-        Assert.equal(ret_b_funds, 800, "");
+        Assert.equal(ret_a_funds, 119400, "");
+        Assert.equal(ret_b_funds, 80000, "");
         Assert.equal(ret_a_sheet,58, "");
         Assert.equal(ret_b_sheet,2, "");
 	
@@ -228,13 +231,15 @@ contract TestUser
 		uint sell_price = 100;
 		uint sell_qty = 6;
 		user_a.insertSheet(user_a_id,"SR","make_date","level_id","wh_id","产地",all_amount, available_amount, frozen_amount);
-        user_a.insertFunds(1000);      //初始化资金
+        user_a.insertFunds(1000);       //初始化资金
+        user_a.setFee(3);               //设置手续费比率
 
 		var ret_market_id = user_a.listRequest(user_id,sheet_id,sell_price,sell_qty);
 
 		//user_b 摘牌
 		uint buy_qty = 6;
-        user_b.insertFunds(1000);      //初始化资金
+        user_b.insertFunds(1000);       //初始化资金
+        user_b.setFee(3);               //设置手续费比率
 
 		var ret_delist  = user_b.delistRequest(user_b_id, ret_market_id, buy_qty);//摘牌
         user_a.confirmList(1);         //确认
@@ -250,12 +255,12 @@ contract TestUser
 		Assert.equal(market.getMarketNum(), 0, "");
 		Assert.equal(user_a.getTradeNum(), 1, "");
 		Assert.equal(user_b.getTradeNum(), 1, "");
-        Assert.equal(ret_a_funds, 1600, "");
-        Assert.equal(ret_b_funds, 400, "");
+        Assert.equal(ret_a_funds, 158200, "");
+        Assert.equal(ret_b_funds, 40000, "");
         Assert.equal(ret_a_sheet,54, "");
         Assert.equal(ret_b_sheet,6, "");
-	
     }
+
     //测试协商交易
 	function testSendNegReq()
 	{
@@ -312,7 +317,7 @@ contract TestUser
 		Assert.equal(a_ret_sheet_id, sheet_id, "");
 		Assert.equal(a_ret_bs, "卖", "");
 		Assert.equal(a_ret_opp_id, user_b_id,"");
-        Assert.equal(user_a.getTotalFunds(), 1000, "");
+        Assert.equal(user_a.getTotalFunds(), 100000, "");
 
 
 		Assert.equal(b_length, 1, "b_length = 1");
@@ -320,7 +325,7 @@ contract TestUser
 		Assert.equal(b_ret_sheet_id, sheet_id, "");
 		Assert.equal(b_ret_bs, "买", " b_ret_bs  ");
 		Assert.equal(b_ret_opp_id, user_a_id," b_ret_opp_id = I am user b ");
-        Assert.equal(user_b.getAvaFunds(), 400, "");
+        Assert.equal(user_b.getAvaFunds(), 40000, "");
 
 	}
 
@@ -333,14 +338,14 @@ contract TestUser
 
 		//创建仓单
 		user_a.insertSheet(user_a_id,"SR","make_date","level_id","wh_id","产地",all_amount, available_amount, frozen_amount);
-        //初始化资金
-        user_a.insertFunds(1000);      
+        user_a.insertFunds(1000);       //初始化资金
+        user_a.setFee(3);               //设置手续费比率
 
 		//发送协商交易请求
 		user_a.sendNegReq(sheet_id,sell_qty,sell_price,user_b_id);
 
-        //初始化资金
-        user_b.insertFunds(1000);      
+        user_b.insertFunds(1000);       //初始化资金
+        user_b.setFee(3);               //设置手续费比率
 
 		//同意协商交易
 		ret = user_b.agreeNeg(user_b_id, 1);
@@ -359,7 +364,7 @@ contract TestUser
 		Assert.equal(a_ret_sheet_id, sheet_id, "");
 		Assert.equal(a_ret_bs, "卖", "");
 		Assert.equal(a_ret_opp_id, user_b_id,"");
-        Assert.equal(user_a.getTotalFunds(), 1600, "");
+        Assert.equal(user_a.getTotalFunds(), 158200, "");
         Assert.equal(user_a.getSheetAllAmount(sheet_id), 54, "");
 
 
@@ -368,8 +373,8 @@ contract TestUser
 		Assert.equal(b_ret_sheet_id, sheet_id, "");
 		Assert.equal(b_ret_bs, "买", " b_ret_bs  ");
 		Assert.equal(b_ret_opp_id, user_a_id," b_ret_opp_id = I am user b ");
-        Assert.equal(user_b.getTotalFunds(), 400, "");
-        Assert.equal(user_b.getAvaFunds(), 400, "");
+        Assert.equal(user_b.getTotalFunds(), 40000, "");
+        Assert.equal(user_b.getAvaFunds(), 40000, "");
         Assert.equal(user_b.getFrozenFunds(), 0, "");
         Assert.equal(user_b.getSheetAllAmount(sheet_id), 6, "");
 

@@ -60,6 +60,7 @@ contract User
     LibSheetMap.SheetMap    sheet_map;  //仓单
     LibTradeMap.TradeMap    trade_map;  //合同
     LibFunds.Funds          funds;      //资金
+    uint                    fee;        //手续费
 
     Market                 market; 
     CreateID               create_id;
@@ -78,6 +79,7 @@ contract User
     ListRequest[]                     list_req; //协商交易请求列表     
     NegSendRequest[]                  neg_req_send_array; 
     NegReceiveRequest[]               neg_req_receive_array; 
+    
 
 
     function setContractAddress(address addr)
@@ -151,10 +153,16 @@ contract User
         wh_id       =   tmp_sheet.wh_id_;
         place_id    =   tmp_sheet.place_id_;
     }
-    //初始化资金
+
+    //初始化资金 资金数扩大100倍
     function insertFunds(uint qty)
     {
         funds.insert(qty);
+    }
+
+    function setFee(uint n)
+    {
+        fee = n;
     }
 
     function getTotalFunds() returns(uint)
@@ -295,6 +303,7 @@ contract User
             {
                 sheet_map.reduce(sheet_id,qty);
                 funds.insert(qty * price);
+                funds.deductFee(qty*price*fee);
             }
         else
             {
@@ -503,6 +512,7 @@ contract User
             {
                 sheet_map.reduce(sheet_id,qty);
                 funds.insert(qty * price);
+                funds.deductFee(qty*price*fee);
             }
         else
             {
@@ -520,7 +530,6 @@ contract User
 
                 funds.reduce(qty * price);
             }
-
     }
 
     
