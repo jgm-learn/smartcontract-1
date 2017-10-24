@@ -84,12 +84,12 @@ contract  Market
         return create_id.getTradeID();
     }
 
-    function insertMarket_1(uint list_date,uint sheet_id,
+    function insertMarket_1(uint sheet_id,
                         bytes32  class_id, bytes32  make_date,   
                         bytes32  lev_id, bytes32  wh_id, bytes32  place_id)
     {
         market_id = getMarketID();
-        temp_market.date_       = list_date;
+        temp_market.date_       = now;
         temp_market.market_id_  = market_id;
         temp_market.sheet_id_   = sheet_id;
         temp_market.class_id_   = class_id;
@@ -187,6 +187,29 @@ contract  Market
         deadline   = temp_value.deadline_;
         dlv_unit   = temp_value.dlv_unit_;
         user_id    = temp_value.user_id_;
+        seller_addr= temp_value.seller_addr_;
+    }
+   function getMarketStr_2(uint market_id)
+        returns (
+            uint        price,         //价格（代替浮点型）
+            uint        list_qty,       //挂牌量
+            uint        deal_qty,      //成交量
+            uint        rem_qty,       //剩余量
+            string      deadline,  //挂牌截止日
+            uint        dlv_unit,      //交割单位
+            string      user_id,       //用户id
+            address     seller_addr   //卖方地址
+        )
+
+    {
+        StructMarket.value memory temp_value = market_map.getValue(market_id);
+        price      = temp_value.price_;
+        list_qty   = temp_value.list_qty_;
+        deal_qty   = temp_value.deal_qty_;
+        rem_qty    = temp_value.rem_qty_;
+        deadline   = bytes32ToString(temp_value.deadline_);
+        dlv_unit   = temp_value.dlv_unit_;
+        user_id    = bytes32ToString(temp_value.user_id_);
         seller_addr= temp_value.seller_addr_;
     }
 
