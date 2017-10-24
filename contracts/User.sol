@@ -11,6 +11,7 @@ import "./lib/StructTrade.sol";
 import "./lib/StructMarket.sol";
 import "./lib/StructFunds.sol";
 import "./lib/LibFunds.sol";
+import "./lib/LibString.sol";
 
 
 contract User
@@ -18,34 +19,38 @@ contract User
     //挂牌请求数据结构
     struct ListRequest
     {
-        uint       sheet_id_;    //仓单序号
-        uint       market_id_;        //挂单编号
-        uint       price_;         //价格（代替浮点型）
-        uint       list_qty_;       //挂牌量
-        uint       deal_qty_;      //成交量
-        uint       rem_qty_;       //剩余量
+        uint        sheet_id_;      //仓单序号
+        uint        market_id_;     //挂单编号
+        uint        date_;           //挂牌日期
+        bytes32     class_id_;       //品种代码
+        bytes32     make_date_;      //产期
+        bytes32     lev_id_;         //等级
+        uint        price_;         //价格（代替浮点型）
+        uint        list_qty_;      //挂牌量
+        uint        rem_qty_;       //剩余量
+        uint        deal_qty_;      //成交量
     }
 
     //协商交易请求数据结构 发送
     struct NegSendRequest
     {
         uint        sheet_id_;    //仓单序号
-        uint        qty_;      //交易数量
+        uint        neg_qty_;      //交易数量
         uint        price_;         //价格
         uint        neg_id_;  //协商编号
         bytes32     opp_id_;//对手方id
-        bytes32     trade_state;    //成交状态
+        bytes32     trade_state_;    //成交状态
     }
 
     //协商交易请求数据结构 接收
     struct NegReceiveRequest
     {
         uint        sheet_id_;        //仓单序号
-        uint        qty_;          //交易数量
+        uint        neg_qty_;          //交易数量
         uint        price_;             //价格
         uint        neg_id_;            //协商编号
         bytes32     opp_id_;      //对手方id
-        bytes32     trade_state;        //成交状态
+        bytes32     trade_state_;        //成交状态
     }
 
     using LibSheetMap   for     LibSheetMap.SheetMap;
@@ -170,7 +175,7 @@ contract User
 
 
     //挂牌请求 "zhang",0,10,20
-    function listRequest(bytes32 seller_user_id, uint sheet_id, uint price, uint sell_qty) returns(uint ret_market_id)
+    function listRequest(bytes32 seller_user_id, uint sheet_id, uint price, uint sell_qty) returns( uint)
     {
         var sheet = sheet_map.getValue(sheet_id);
         if(sheet.available_amount_ == 0)
@@ -181,17 +186,15 @@ contract User
             market =  Market(contract_address.getContractAddress(market_name));
             market.insertMarket_1(sheet.sheet_id_,sheet.class_id_, sheet.make_date_,sheet.lev_id_, sheet.wh_id_, sheet.place_id_);
             //TODO modify deadline、dlv_unit
-            ret_market_id = market.insertMarket_2(price, sell_qty, 0, sell_qty, "deadline", 5, sheet.user_id_ );
+            var(ret_market_id,date) = market.insertMarket_2(price, sell_qty, 0, sell_qty, "deadline", 5, sheet.user_id_ );
             if(ret_market_id >0)
-                {
                     freeze(sheet_id, sell_qty);
-                }
-                list_req.push(ListRequest(sheet_id, ret_market_id, price, sell_qty, 0, sell_qty)); 
+
+            //将挂牌数据保存到挂牌请求列表中
+            list_req.push(ListRequest(sheet_id, ret_market_id, date, sheet.class_id_, sheet.make_date_, sheet.lev_id_, price, sell_qty, 0, sell_qty)); 
+            return ret_market_id;
     }
-    function getListReqNum() returns(uint)
-    {
-        return list_req.length;
-    }
+
 
     //摘牌请求 "li",1,10
     function delistRequest(bytes32 buy_user_id, uint selected_market_id, uint confirm_qty) returns (int)
@@ -400,7 +403,7 @@ contract User
                     break;
             }
             //判断可用资金是否足够
-            uint payment = neg_req_receive_array[i].qty_ * neg_req_receive_array[i].price_;
+            uint payment = neg_req_receive_array[i].neg_qty_ * neg_req_receive_array[i].price_;
             if( payment > funds.getAvaFunds() )
                 {
                     ret = -2;
@@ -451,7 +454,7 @@ contract User
                         break;
                 }
 
-                trade_map.insert(trade_id, StructTrade.value(date,trade_id,neg_req_send_array[i].sheet_id_,bs,neg_req_send_array[i].price_,neg_req_send_array[i].qty_,sell_user_id,buy_user_id));
+                trade_map.insert(trade_id, StructTrade.value(date,trade_id,neg_req_send_array[i].sheet_id_,bs,neg_req_send_array[i].price_,neg_req_send_array[i].neg_qty_,sell_user_id,buy_user_id));
 
                 //funds.insert(neg_req_send_array[i].qty_ * neg_req_send_array[i].price_);
             }
@@ -467,10 +470,10 @@ contract User
                             break;
                     }
 
-                    trade_map.insert(trade_id, StructTrade.value(date,trade_id,neg_req_receive_array[k].sheet_id_,bs,neg_req_receive_array[k].price_,neg_req_receive_array[k].qty_,buy_user_id,sell_user_id));
+                    trade_map.insert(trade_id, StructTrade.value(date,trade_id,neg_req_receive_array[k].sheet_id_,bs,neg_req_receive_array[k].price_,neg_req_receive_array[k].neg_qty_,buy_user_id,sell_user_id));
 
                     //funds.reduce(neg_req_receive_array[k].qty_ * neg_req_receive_array[k].price_);
-                    funds.freeze(neg_req_receive_array[k].qty_ * neg_req_receive_array[k].price_);
+                    funds.freeze(neg_req_receive_array[k].neg_qty_ * neg_req_receive_array[k].price_);
                     return 0;
                 }
     }
@@ -519,5 +522,96 @@ contract User
             }
 
     }
+
+    
+	//获取sheetMap元素个数
+    function getSheetMapNum() returns(uint)
+    {
+       return sheet_map.size();
+    }
+    //获取sheetMap元素信息
+    function getSheetMap_1(uint index) external returns(string user_id, uint sheet_id,string class_id, string make_date, string level_id, string wh_id, string place_id)
+    {
+        tmp_sheet = sheet_map.getValueByIndex(index);
+        user_id = LibString.bytes32ToString(tmp_sheet.user_id_);
+        sheet_id = tmp_sheet.sheet_id_;
+        class_id = LibString.bytes32ToString(tmp_sheet.class_id_);
+        make_date = LibString.bytes32ToString(tmp_sheet.make_date_);
+        level_id = LibString.bytes32ToString(tmp_sheet.lev_id_);
+        wh_id = LibString.bytes32ToString(tmp_sheet.wh_id_);
+        place_id = LibString.bytes32ToString(tmp_sheet.place_id_);
+    }
+    function getSheetMap_2(uint index) external returns(uint all_amount, uint avail_amount, uint frozen_amount)
+    {
+        tmp_sheet = sheet_map.getValueByIndex(index);
+        all_amount = tmp_sheet.all_amount_;
+        avail_amount = tmp_sheet.available_amount_;
+        frozen_amount = tmp_sheet.frozen_amount_; 
+    }
+
+    //获取挂牌请求列表的长度
+    function getListReqNum() returns(uint)
+    {
+        return list_req.length;
+    }
+    //获取挂牌请求列表数据
+	function getListReq(uint i) external returns(uint sheet_id, uint market_id, uint date, string class_id, string make_date, string lev_id, uint price, uint list_qty, uint deal_qty, uint rem_qty)
+    {
+        if (i < list_req.length)
+        {
+            sheet_id    =       list_req[i].sheet_id_;
+            market_id   =       list_req[i].market_id_;
+            date        =       list_req[i].date_;
+            class_id    =       LibString.bytes32ToString(list_req[i].class_id_);
+            make_date   =       LibString.bytes32ToString(list_req[i].make_date_);
+            lev_id      =       LibString.bytes32ToString(list_req[i].lev_id_);
+            price       =       list_req[i].price_;
+            list_qty    =       list_req[i].list_qty_;
+            deal_qty    =       list_req[i].deal_qty_;
+            rem_qty     =       list_req[i].rem_qty_;
+        }
+    }
+
+    //获取协商请发送求列表数据
+	function getNegReqSend(uint i) external returns(uint sheet_id, uint neg_id, uint price, uint neg_qty, string opp_id, string trade_state)
+    {
+        if (i < neg_req_send_array.length)
+        {
+            sheet_id    =       neg_req_send_array[i].sheet_id_;
+            neg_id      =       neg_req_send_array[i].neg_id_;
+            price       =       neg_req_send_array[i].price_;
+            neg_qty     =       neg_req_send_array[i].neg_qty_;
+            opp_id      =       LibString.bytes32ToString(neg_req_send_array[i].opp_id_);
+            trade_state =       LibString.bytes32ToString(neg_req_send_array[i].trade_state_);
+        }
+    }
+
+    //获取协商请接收求列表数据
+	function getNegReqReceive(uint i) external returns(uint sheet_id, uint neg_id, uint price, uint neg_qty, string opp_id, string trade_state)
+    {
+        if (i < neg_req_receive_array.length)
+        {
+            sheet_id    =       neg_req_receive_array[i].sheet_id_;
+            neg_id      =       neg_req_receive_array[i].neg_id_;
+            price       =       neg_req_receive_array[i].price_;
+            neg_qty     =       neg_req_receive_array[i].neg_qty_;
+            opp_id      =       LibString.bytes32ToString(neg_req_receive_array[i].opp_id_);
+            trade_state =       LibString.bytes32ToString(neg_req_receive_array[i].trade_state_);
+        }
+    }
+	 //根据索引获取合同数据
+    function getTrade(uint it) external returns(uint trade_date, uint trade_id, uint sheet_id, string bs, uint trade_qty,string user_id,string opp_id)
+
+   {
+       tmp_trade = trade_map.getValueByIndex(it);
+       
+       trade_date   =   tmp_trade.trade_date_;
+       trade_id     =   tmp_trade.trade_id_;
+       sheet_id     =   tmp_trade.sheet_id_;
+       bs           =   LibString.bytes32ToString(tmp_trade.bs_);
+       trade_qty    =   tmp_trade.trade_qty_;
+       user_id      =   LibString.bytes32ToString(tmp_trade.user_id_);
+       opp_id       =   LibString.bytes32ToString(tmp_trade.opp_id_);
+   }
 } 
 
