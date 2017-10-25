@@ -618,7 +618,6 @@ contract User
     }
 	 //根据索引获取合同数据
     function getTrade(uint it) external returns(uint trade_date, uint trade_id, uint sheet_id, string bs, uint trade_qty,string user_id,string opp_id)
-
    {
        tmp_trade = trade_map.getValueByIndex(it);
        

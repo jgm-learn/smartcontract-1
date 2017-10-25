@@ -164,6 +164,7 @@ contract TestUser
 		Assert.equal(user_b.getTradeNum(), 1, "");
         Assert.equal(ret_a_funds, 100000, "");
         Assert.equal(ret_b_funds, 80000, "");
+
 	}
 
 	function testDelistRequest_listqty_equal_delistqty()
