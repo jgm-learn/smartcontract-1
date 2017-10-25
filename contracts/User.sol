@@ -113,9 +113,8 @@ contract User
     {
         create_id =  CreateID(contract_address.getContractAddress(create_id_name));
         uint sheet_id = create_id.getSheetID();
-        sheet_map.insert(sheet_id, StructSheet.value(user_id, sheet_id, 
-                                                     class_id, make_date, lev_id, wh_id, place_id, all_amount,
-                                                      frozen_amount,available_amount));
+        sheet_map.insert(sheet_id, StructSheet.value(user_id, sheet_id, class_id, make_date, lev_id, wh_id, place_id, all_amount,
+                                                      available_amount,frozen_amount));
     }
 
     //获取持有者的仓单数量
