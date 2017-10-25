@@ -71,12 +71,12 @@ library LibSheetMap
         return self.data[k];
     }
 
-    //判断该仓单是否存在
-    function isExisted(SheetMap storage self, uint trade_id ) internal returns (bool)
+    //判断该种仓单是否存在
+    function isExisted(SheetMap storage self, bytes32 class_id, bytes32 make_date, bytes32 lev_id, bytes32 wh_id, bytes32 place_id) internal returns (bool)
     {
         for(uint i = 0; i < self.keyIndex.length; i++)
         {
-            if( self.keyIndex[i] == trade_id )
+            if( self.data[i].class_id_ == class_id && self.data[i].make_date_ == make_date && self.data[i].lev_id_ == lev_id && self.data[i].wh_id_ == wh_id && self.data[i].place_id_ == place_id) 
                 return true;
         }
         return false;

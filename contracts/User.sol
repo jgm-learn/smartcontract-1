@@ -102,6 +102,11 @@ contract User
     {
         my_user_id = id;
     }
+    //初始化CreateID合约变量
+    function setCreateID()
+    {
+        create_id =  CreateID(contract_address.getContractAddress(create_id_name));
+    }
 
     //初始化仓单
     function insertSheet(bytes32 user_id, bytes32 class_id, bytes32 make_date,bytes32 lev_id, bytes32 wh_id, bytes32 place_id, uint all_amount,uint frozen_amount, uint available_amount)
@@ -110,7 +115,7 @@ contract User
         uint sheet_id = create_id.getSheetID();
         sheet_map.insert(sheet_id, StructSheet.value(user_id, sheet_id, 
                                                      class_id, make_date, lev_id, wh_id, place_id, all_amount,
-                                                     frozen_amount, available_amount));
+                                                      frozen_amount,available_amount));
     }
 
     //获取持有者的仓单数量
@@ -307,15 +312,17 @@ contract User
             }
         else
             {
-                if(sheet_map.isExisted(sheet_id))
+                //初始化user_list
+                user_list =  UserList(contract_address.getContractAddress(user_list_name));
+                        
+                User user_sell = User(user_list.getUserAgentAddr(opp_id));
+                var(class_id,make_date,lev_id,wh_id,place_id)= user_sell.getSheetAttribute(sheet_id); 
+
+                if(sheet_map.isExisted(class_id,make_date,lev_id,wh_id,place_id))
                         sheet_map.add(sheet_id,qty);
                 else
                     {
-                        //初始化user_list
-                        user_list =  UserList(contract_address.getContractAddress(user_list_name));
-                        
-                        User user_sell = User(user_list.getUserAgentAddr(opp_id));
-                        var(class_id,make_date,lev_id,wh_id,place_id)= user_sell.getSheetAttribute(sheet_id); 
+                        sheet_id = create_id.getSheetID();
                         sheet_map.insert(sheet_id, StructSheet.value(user_id, sheet_id, class_id, make_date, lev_id, wh_id, place_id,qty,0,qty));
                     }
 
@@ -516,15 +523,17 @@ contract User
             }
         else
             {
-                if(sheet_map.isExisted(sheet_id))
+                //初始化user_list
+                user_list =  UserList(contract_address.getContractAddress(user_list_name));
+                        
+                User user_sell = User(user_list.getUserAgentAddr(opp_id));
+                var(class_id,make_date,lev_id,wh_id,place_id)= user_sell.getSheetAttribute(sheet_id); 
+
+                if(sheet_map.isExisted(class_id,make_date,lev_id,wh_id,place_id))
                         sheet_map.add(sheet_id,qty);
                 else
                     {
-                        //初始化user_list
-                        user_list =  UserList(contract_address.getContractAddress(user_list_name));
-                        
-                        User user_sell = User(user_list.getUserAgentAddr(opp_id));
-                        var(class_id,make_date,lev_id,wh_id,place_id)= user_sell.getSheetAttribute(sheet_id); 
+                        sheet_id = create_id.getSheetID(); 
                         sheet_map.insert(sheet_id, StructSheet.value(user_id, sheet_id, class_id, make_date, lev_id, wh_id, place_id,qty,0,qty));
                     }
 

@@ -74,13 +74,14 @@ contract TestUser
 		user_a.setCreateIDName(create_id_name);
 		user_a.setUserListName(user_list_name);
 		user_a.setUserID(user_a_id);
+        user_a.setCreateID();
 
 		user_b.setContractAddress(contract_addr);
 		user_b.setMarketName(market_name);
 		user_b.setCreateIDName(create_id_name);
 		user_b.setUserListName(user_list_name);
 		user_b.setUserID(user_b_id);
-
+        user_b.setCreateID();
 	}
 
 	function testFreeze_exceed_owned_sheet()
@@ -209,7 +210,7 @@ contract TestUser
         var ret_a_funds     =  user_a.getTotalFunds();
         var ret_b_funds     =  user_b.getTotalFunds();
         var ret_a_sheet     =  user_a.getSheetAllAmount(sheet_id);
-        var ret_b_sheet     =  user_b.getSheetAllAmount(sheet_id);
+        var ret_b_sheet     =  user_b.getSheetAllAmount(2);
 
 		//Assert
 		Assert.equal(ret_market_id, 1, "");
@@ -247,7 +248,7 @@ contract TestUser
         var ret_a_funds     =  user_a.getTotalFunds();
         var ret_b_funds     =  user_b.getTotalFunds();
         var ret_a_sheet     =  user_a.getSheetAllAmount(sheet_id);
-        var ret_b_sheet     =  user_b.getSheetAllAmount(sheet_id);
+        var ret_b_sheet     =  user_b.getSheetAllAmount(2);
 
 		//Assert
 		Assert.equal(ret_market_id, 1, "");
@@ -376,7 +377,6 @@ contract TestUser
         Assert.equal(user_b.getTotalFunds(), 40000, "");
         Assert.equal(user_b.getAvaFunds(), 40000, "");
         Assert.equal(user_b.getFrozenFunds(), 0, "");
-        Assert.equal(user_b.getSheetAllAmount(sheet_id), 6, "");
-
+        Assert.equal(user_b.getSheetAllAmount(2), 6, "");
 	}
 }
