@@ -25,6 +25,7 @@ var Market = artifacts.require("Market");
 
 module.exports = function(deployer) {
 
+
   //independ
   deployer.deploy(CreateID);
 
