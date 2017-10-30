@@ -45,13 +45,13 @@ contract UserList
     function getExternal_addr(bytes32 user_id) returns(address external_addr)
     {
         user_addr       = user_map.getValue(user_id);
-        external_addr   = user_addr.external_addr_; 
+        external_addr   = user_addr.extern_addr_; 
     }
 
     //查询user_id 是否存在
-    function isExisted(bytes32 user_id) return(bool ret)
+    function isExisted(bytes32 user_id) returns(bool ret)
     {
-       ret = UserAddrMap.isExisted(user_id);
+       ret = user_map.isExisted(user_id);
     }
 
 
