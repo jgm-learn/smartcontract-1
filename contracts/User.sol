@@ -295,13 +295,17 @@ contract User
     }
 
     //管理员确认挂牌交易
-    function confirmList(uint trade_id) 
+    function confirmList(uint trade_id) returns(int) 
     {
         uint sheet_id   =   trade_map.data[trade_id].sheet_id_; 
         uint qty        =   trade_map.data[trade_id].trade_qty_;
         uint price      =   trade_map.data[trade_id].price_;
         bytes32 user_id =   trade_map.data[trade_id].user_id_;
         bytes32 opp_id  =   trade_map.data[trade_id].opp_id_;
+
+        //判断该合同是否存在
+        if(!trade_map.isExisted(trade_id))
+            return -1;
 
         if(trade_map.data[trade_id].bs_  == "卖")
             {
@@ -327,6 +331,7 @@ contract User
 
                 funds.reduce(qty * price);
             }
+            return 0;
     }
 
     //更新卖方挂牌请求
@@ -506,13 +511,17 @@ contract User
     }
 
     //管理员确认协商交易
-    function confirmNeg(uint trade_id) 
+    function confirmNeg(uint trade_id) returns(int) 
     {
         uint sheet_id   =   trade_map.data[trade_id].sheet_id_; 
         uint qty        =   trade_map.data[trade_id].trade_qty_;
         uint price      =   trade_map.data[trade_id].price_;
         bytes32 user_id =   trade_map.data[trade_id].user_id_;
         bytes32 opp_id  =   trade_map.data[trade_id].opp_id_;
+
+        //判断该合同是否存在
+        if(!trade_map.isExisted(trade_id))
+            return -1;
 
         if(trade_map.data[trade_id].bs_  == "卖")
             {
@@ -538,6 +547,7 @@ contract User
 
                 funds.reduce(qty * price);
             }
+            return 0;
     }
 
     
