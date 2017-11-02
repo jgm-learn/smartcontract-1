@@ -27,8 +27,8 @@ contract User
         bytes32     lev_id_;         //等级
         uint        price_;         //价格（代替浮点型）
         uint        list_qty_;      //挂牌量
-        uint        rem_qty_;       //剩余量
         uint        deal_qty_;      //成交量
+        uint        rem_qty_;       //剩余量
     }
 
     //协商交易请求数据结构 发送
