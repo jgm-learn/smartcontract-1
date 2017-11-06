@@ -215,6 +215,7 @@ contract TestUser
 		var ret_delist  = user_b.delistRequest(user_b_id, ret_market_id, buy_qty);//摘牌
         user_a.confirmList(1);         //确认
         user_b.confirmList(1);         //确认
+        var ret_confirm     = user_a.confirmList(2);
         var ret_a_funds     =  user_a.getTotalFunds();
         var ret_b_funds     =  user_b.getTotalFunds();
         var ret_a_sheet     =  user_a.getSheetAllAmount(sheet_id);
@@ -230,6 +231,7 @@ contract TestUser
         Assert.equal(ret_b_funds, 80000, "");
         Assert.equal(ret_a_sheet,58, "");
         Assert.equal(ret_b_sheet,2, "");
+        Assert.equal(ret_confirm,-1, "");
 	
     }
 
