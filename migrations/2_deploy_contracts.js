@@ -22,6 +22,8 @@ var ContractAddress = artifacts.require("ContractAddress");
 var User = artifacts.require("User");
 var UserList = artifacts.require("UserList");
 var Market = artifacts.require("Market");
+var Login = artifacts.require("Login");
+var Admin = artifacts.require("Admin");
 
 module.exports = function(deployer) {
 
@@ -58,7 +60,7 @@ module.exports = function(deployer) {
   deployer.link(LibUserAddrMap, [UserList]);
 
   deployer.link(StructSheet, [User]);
-  deployer.link(LibSheetMap, [User]);
+  deployer.link(LibSheetMap, [User,Admin]);
 
   deployer.link(StructTrade, [User]);
   deployer.link(LibTradeMap, [User]);
@@ -68,4 +70,6 @@ module.exports = function(deployer) {
   deployer.deploy(Market);
   deployer.deploy(UserList);
   deployer.deploy(CreateID);
+  deployer.deploy(Login);
+  deployer.deploy(Admin);
 };
