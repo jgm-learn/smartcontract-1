@@ -12,6 +12,7 @@ import "./lib/StructMarket.sol";
 import "./lib/StructFunds.sol";
 import "./lib/LibFunds.sol";
 import "./lib/LibString.sol";
+import "./Admin.sol";
 
 
 contract User
@@ -62,11 +63,12 @@ contract User
     LibFunds.Funds          funds;      //资金
     uint                    fee;        //手续费
 
+    ContractAddress        contract_address;
     Market                 market; 
     CreateID               create_id;
     UserList               user_list;
+    Admin                  admin;
 
-    ContractAddress        contract_address;
     string                 market_name;
     string                 create_id_name;
     string                 user_list_name;
@@ -102,6 +104,11 @@ contract User
     {
         my_user_id = id;
     }
+    function setAdmin(string Admin_name)
+    {
+        admin =  Admin(contract_address.getContractAddress(create_id_name));
+    }
+
     //初始化CreateID合约变量
     function setCreateID()
     {
@@ -286,6 +293,7 @@ contract User
         if(bs == "买")
               funds.freeze(confirm_qty * temp_market.price_);
 
+         admin.insertConfirmListReq(my_user_id, trade_id);
          ret = 0;
     }
 
@@ -494,8 +502,9 @@ contract User
 
                     //funds.reduce(neg_req_receive_array[k].qty_ * neg_req_receive_array[k].price_);
                     funds.freeze(neg_req_receive_array[k].neg_qty_ * neg_req_receive_array[k].price_);
-                    return 0;
                 }
+            admin.insertConfirmNegReq(my_user_id, trade_id);
+            return 0;
     }
 
     //获取合同数据
