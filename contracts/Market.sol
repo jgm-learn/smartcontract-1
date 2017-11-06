@@ -1,5 +1,5 @@
 pragma solidity ^0.4.5;
- 
+
 import "./User.sol";
 import "./UserList.sol";
 import "./CreateID.sol";
@@ -10,6 +10,7 @@ import "./lib/LibString.sol";
  
 contract  Market
 {
+    event getRet(uint ret);
     using LibMarketMap for LibMarketMap.MarketMap;
 
     LibMarketMap.MarketMap  market_map;
@@ -27,10 +28,12 @@ contract  Market
     {
        contract_address = ContractAddress(addr); 
     }
+    
     function setCreateIDName(string name)
     {
         create_id_name = name;
     }
+    
     function setUserListName(string name)
     {
         user_list_name = name;
@@ -49,6 +52,7 @@ contract  Market
 
         return create_id.getMarketID();
     }
+
     function getTradeID() returns (uint)
     {
         address empty_addr;
@@ -61,6 +65,7 @@ contract  Market
 
         return create_id.getTradeID();
     }
+
     function insertMarket_1(uint sheet_id,
                         bytes32  class_id, bytes32  make_date,   
                         bytes32  lev_id, bytes32  wh_id, bytes32  place_id)
@@ -76,7 +81,8 @@ contract  Market
         temp_market.place_id_   = place_id;
         temp_market.type_       = "一口价";
     }
-    function insertMarket_2(uint price, uint list_qty, uint deal_qty,
+   
+   function insertMarket_2(uint price, uint list_qty, uint deal_qty,
                             uint rem_qty, bytes32  deadline, 
                             uint dlv_unit, bytes32 user_id ) returns(uint,uint)
     {
@@ -89,6 +95,7 @@ contract  Market
         temp_market.user_id_    = user_id;
         temp_market.seller_addr_= msg.sender;
         market_map.insert(market_id, temp_market);
+        getRet(market_id);
         return (market_id,temp_market.date_);        
     }
 
@@ -99,7 +106,7 @@ contract  Market
             uint        ret_market_id,        //挂牌编号
             uint        sheet_id,    //仓单编号
             bytes32      class_id,      //品种代码
-            bytes32      make_date,     //产期
+            bytes32     make_date,     //产期
             bytes32      lev_id,        //等级
             bytes32      wh_id,         //仓库代码
             bytes32      place_id,      //产地代码
@@ -115,9 +122,11 @@ contract  Market
         lev_id     = temp_value.lev_id_;
         wh_id      = temp_value.wh_id_;
         place_id   = temp_value.place_id_;
-        price_type       = temp_value.type_;
+        price_type = temp_value.type_;
     }
-    function getMarket_2(uint market_id)
+   
+
+   function getMarket_2(uint market_id)
         returns (
             uint        price,         //价格（代替浮点型）
             uint        list_qty,       //挂牌量
@@ -140,6 +149,7 @@ contract  Market
         user_id    = temp_value.user_id_;
         seller_addr= temp_value.seller_addr_;
     }
+
     function getDynamicMarket(uint in_market_id) returns (bytes32 sell_user_id, uint deal_qty, uint rem_qty) //行情中，只有成交量和剩余量会发生变化
     {
         StructMarket.value memory temp_value = market_map.getValue(in_market_id);
