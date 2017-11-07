@@ -72,7 +72,7 @@ async function setDep()
     await Login_instance.init.sendTransaction(ContractAddress_instance.address,user_list_name,{from:god_account});
 
     console.log("\t设置Admin合约");
-    await Login_instance.init.sendTransaction(ContractAddress_instance.address,user_list_name,{from:god_account});
+    await Admin.init.sendTransaction(ContractAddress_instance.address,user_list_name,{from:god_account});
     console.log("End:...设置合约依赖关系完毕")
 }
 initAddress().then( function(){
