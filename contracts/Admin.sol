@@ -9,12 +9,16 @@ contract Admin
     struct ConfirmListReq
     {
         bytes32 user_id_;
+        bytes32 user_sell_id_;
         uint    trade_id_;
+        bytes32 status;
     }
     struct ConfirmNegReq
     {
         bytes32 user_id_;
+        bytes32 user_sell_id_;
         uint    trade_id_;
+        bytes32 status;
     }
 
     ContractAddress     contract_address;
@@ -22,6 +26,7 @@ contract Admin
     ConfirmListReq[]    confirm_list_req;
     ConfirmNegReq[]     confirm_neg_req;
     User                user;
+    User                user_sell;
 
     function init(address addr, string user_list_name)
     {
@@ -29,32 +34,36 @@ contract Admin
         user_list =  UserList(contract_address.getContractAddress(user_list_name));
     }
 
-    function insertConfirmListReq(bytes32 user_id, uint trade_id)
+    function insertConfirmListReq(bytes32 user_id, bytes32 user_sell_id,uint trade_id)
     {
-        confirm_list_req.push( ConfirmListReq(user_id,trade_id));
+        confirm_list_req.push( ConfirmListReq(user_id,user_sell_id,trade_id));
     }
 
-    function insertConfirmNegReq(bytes32 user_id, uint trade_id)
+    function insertConfirmNegReq(bytes32 user_id, bytes32 user_sell_id, uint trade_id)
     {
-        confirm_neg_req.push( ConfirmNegReq(user_id,trade_id));
+        confirm_neg_req.push( ConfirmNegReq(user_id,user_sell_id,trade_id));
     }
 
     //确认挂牌交易
     function confirmList(uint index)
     {
-        user = User(user_list.getUserAgentAddr(confirm_list_req[index].user_id_));
+        user        = User(user_list.getUserAgentAddr(confirm_list_req[index].user_id_));
+        user_sell   = User(user_list.getUserAgentAddr(confirm_list_req[index].user_sell_id_));
         user.confirmList(confirm_list_req[index].trade_id_);
+        user_sell.confirmList(confirm_list_req[index].trade_id_);
     }
 
     //确认协商交易
     function confirmNeg(uint index)
     {
-        user = User(user_list.getUserAgentAddr(confirm_neg_req[index].user_id_));
+        user        = User(user_list.getUserAgentAddr(confirm_neg_req[index].user_id_));
+        user_sell   = User(user_list.getUserAgentAddr(confirm_neg_req[index].user_sell_id_));
         user.confirmNeg(confirm_neg_req[index].trade_id_);
+        user_sell.confirmNeg(confirm_neg_req[index].trade_id_);
     }
 
     //添加用户
-    function addUser(address external_addr, bytes32 user_id)
+    function addUser(bytes32 user_id, address external_addr)
     {
         user = new User();
         user_list.addUser(external_addr,user,user_id,1);
@@ -66,4 +75,15 @@ contract Admin
         user_list.delUserInfo(user_id);
     }
 
+    //获取挂牌交易确认请求列表的长度
+    function getConfirmListReqSize() returns(uint)
+    {
+        return confirm_list_req.length; 
+    }
+
+    //获取协商交易确认请求列表的长度
+    function getConfirmNegReqSize() returns(uint)
+    {
+        return confirm_neg_req.length; 
+    }
 }
