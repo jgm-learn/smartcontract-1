@@ -22,6 +22,7 @@ var ContractAddress = artifacts.require("ContractAddress");
 var User = artifacts.require("User");
 var UserList = artifacts.require("UserList");
 var Market = artifacts.require("Market");
+var Proxy = artifacts.require("Proxy");
 
 module.exports = function(deployer) {
 
@@ -68,4 +69,5 @@ module.exports = function(deployer) {
   deployer.deploy(Market);
   deployer.deploy(UserList);
   deployer.deploy(CreateID);
+  deployer.deploy(Proxy);
 };
