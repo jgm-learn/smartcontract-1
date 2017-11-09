@@ -105,9 +105,9 @@ contract User
     {
         my_user_id = id;
     }
-    function setAdmin(string Admin_name)
+    function setAdmin(string admin_name)
     {
-        admin =  Admin(contract_address.getContractAddress(create_id_name));
+        admin =  Admin(contract_address.getContractAddress(admin_name));
     }
 
     //初始化CreateID合约变量

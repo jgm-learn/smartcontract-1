@@ -34,4 +34,12 @@ contract Login
         else
             ret = -2; 
     }
+    function getUserListName() returns(string)
+    {
+        return user_list_name;
+    }
+    function getContractAddr() returns(address)
+    {
+        return contract_address;
+    }
 }

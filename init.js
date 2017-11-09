@@ -1,7 +1,12 @@
+//可配置
+var god_account = "0xe6091bbd070cd8c5738df3f31fb544fcb312731b";
+var admin_extern_addr = "0x64Cf64440E1eF3a6F7DA6B2921B155f1ab8772F8";
+
+//不要改动
 var market_name ="Market";
 var create_id_name ="CreateID";
 var user_list_name ="UserList";
-var god_account = "0xe6091bbd070cd8c5738df3f31fb544fcb312731b";
+var admin_name ="admin";
 
 // Step 1: Get a contract into my application
 var UserList_json           = require("./build/contracts/UserList.json");
@@ -72,9 +77,17 @@ async function setDep()
     await Login_instance.init.sendTransaction(ContractAddress_instance.address,user_list_name,{from:god_account});
 
     console.log("\t设置Admin合约");
-    await Admin.init.sendTransaction(ContractAddress_instance.address,user_list_name,{from:god_account});
+    await Admin_instance.init.sendTransaction(ContractAddress_instance.address,user_list_name,{from:god_account});
     console.log("End:...设置合约依赖关系完毕")
 }
-initAddress().then( function(){
-    setDep();
+async function setAdminExternAddr()
+{
+    console.log("Start:设置Admin合约外部账户地址....");
+    await UserList_instance.addUser.sendTransaction(admin_extern_addr,Admin_instance.address,admin_name,"5",{from:god_account});
+    console.log("\tAdmin合约的外部账户地址:"+admin_extern_addr);
+    console.log("End:...设置Admin合约外部账户地址完毕")
+}
+initAddress().then( async function(){
+    await setDep();
+    await setAdminExternAddr();
 });
