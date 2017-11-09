@@ -5,8 +5,9 @@ import "./UserList.sol";
 
 contract Login
 {
-    ContractAddress        contract_address;
-    UserList    user_list;
+    ContractAddress     contract_address;
+    UserList            user_list;
+    string              user_list_name; 
 
     function init(address addr, string user_list_name)
     {
