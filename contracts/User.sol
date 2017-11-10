@@ -661,7 +661,7 @@ contract User
        bs           =   LibString.bytes32ToString(tmp_trade.bs_);
        price        =   tmp_trade.price_;
        trade_qty    =   tmp_trade.trade_qty_;
-       trade_price  =   tmp_trade.price_;
+       //trade_price  =   tmp_trade.price_;
        user_id      =   LibString.bytes32ToString(tmp_trade.user_id_);
        opp_id       =   LibString.bytes32ToString(tmp_trade.opp_id_);
    }
