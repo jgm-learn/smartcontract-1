@@ -60,13 +60,14 @@ contract Admin
     }
     function addUser(address external_addr, bytes32 user_id, bytes32 class_id, bytes32 make_date,
                     bytes32 lev_id, bytes32 wh_id, bytes32 place_id, uint all_amount,
-                    uint frozen_amount, uint available_amount)
+                    uint frozen_amount, uint available_amount, uint funds)
     {//TODO 重复用户判断
         user = new User();
         user.initNoChangeDep();
         user.setContractAddress(contract_address);
         user.setUserID(user_id);
         user.insertSheet(user_id, class_id, make_date, lev_id, wh_id, place_id, all_amount, frozen_amount, available_amount);
+        user.insertFunds(funds);
         user_list.addUser(external_addr,user,user_id,1);
     }
     //删除用户

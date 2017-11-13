@@ -1,12 +1,12 @@
 //可配置
-var god_account = "0xe6091bbd070cd8c5738df3f31fb544fcb312731b";
-var admin_extern_addr = "0x64Cf64440E1eF3a6F7DA6B2921B155f1ab8772F8";
+var god_account= "0x0E5977772f48A15bc990de2fA53E63f2cB814BbB"; //root
+var admin_extern_addr = "0x0E5977772f48A15bc990de2fA53E63f2cB814BbB";
 
 //不要改动
 var market_name ="Market";
 var create_id_name ="CreateID";
 var user_list_name ="UserList";
-var admin_name ="admin";
+var admin_name ="Admin";
 
 // Step 1: Get a contract into my application
 var UserList_json           = require("./build/contracts/UserList.json");
@@ -15,6 +15,8 @@ var Market_json             = require("./build/contracts/Market.json");
 var CreateID_json           = require("./build/contracts/CreateID.json");
 var Login_json              = require("./build/contracts/Login.json");
 var Admin_json              = require("./build/contracts/Admin.json");
+var Proxy_json              = require("./build/contracts/Proxy.json");
+
 var Web3                    = require('web3');
 
 // Step 2: Turn that contract into an abstraction I can use
@@ -25,15 +27,17 @@ var Market          = contract(Market_json);
 var CreateID        = contract(CreateID_json);
 var Login           = contract(Login_json);
 var Admin           = contract(Admin_json);
+var Proxy           = contract(Proxy_json);
 
 // Step 3: Provision the contract with a web3 provider
-var web3 = new Web3.providers.HttpProvider("http://localhost:8548");
+var web3 = new Web3.providers.HttpProvider("http://192.168.22.123:8545");
 UserList.setProvider(web3);
 ContractAddress.setProvider(web3);
 Market.setProvider(web3);
 CreateID.setProvider(web3);
 Login.setProvider(web3);
 Admin.setProvider(web3);
+Proxy.setProvider(web3);
 
 // Step 4: Use the contract!
 let UserList_instance;
@@ -42,6 +46,8 @@ let Market_instance;
 let CreateID_instance;
 let Login_instance;
 let Admin_instance;
+let Proxy_instance;
+
 async function initAddress()
 {
    console.log("Start:获取系统合约的地址....");
@@ -57,6 +63,8 @@ async function initAddress()
    console.log("\tLogin Address:"+Login_instance.address);
    Admin_instance = await Admin.deployed(); 
    console.log("\tAdmin Address:"+Admin_instance.address);
+   Proxy_instance = await Proxy.deployed(); 
+   console.log("\tProxy Address:"+Proxy_instance.address);
    console.log("End:...获取系统合约地址结束");
    
 }
@@ -67,6 +75,7 @@ async function setDep()
     await ContractAddress_instance.setContractAddress.sendTransaction(market_name,Market_instance.address,{from:god_account});
     await ContractAddress_instance.setContractAddress.sendTransaction(create_id_name,CreateID_instance.address,{from:god_account});
     await ContractAddress_instance.setContractAddress.sendTransaction(user_list_name,UserList_instance.address,{from:god_account});
+    await ContractAddress_instance.setContractAddress.sendTransaction(admin_name,Admin_instance.address,{from:god_account});
 
     console.log("\t设置Market合约");
     await Market_instance.setContractAddress.sendTransaction(ContractAddress_instance.address,{from:god_account});
@@ -77,15 +86,18 @@ async function setDep()
     await Login_instance.init.sendTransaction(ContractAddress_instance.address,user_list_name,{from:god_account});
 
     console.log("\t设置Admin合约");
-    await Admin_instance.init.sendTransaction(ContractAddress_instance.address,user_list_name,{from:god_account});
-    console.log("End:...设置合约依赖关系完毕")
+    await Admin_instance.init.sendTransaction(ContractAddress_instance.address,user_list_name,{from:god_account,gas:9999999});
+    
+    console.log("\t设置Proxy合约");
+    await Proxy_instance.init.sendTransaction(ContractAddress_instance.address,{from:god_account,gas:9999999});
+    console.log("End:...设置合约依赖关系完毕");
 }
 async function setAdminExternAddr()
 {
     console.log("Start:设置Admin合约外部账户地址....");
-    await UserList_instance.addUser.sendTransaction(admin_extern_addr,Admin_instance.address,admin_name,"5",{from:god_account});
+    await UserList_instance.addUser.sendTransaction(admin_extern_addr,Admin_instance.address,admin_name,"5",{from:god_account,gas:9999999});
     console.log("\tAdmin合约的外部账户地址:"+admin_extern_addr);
-    console.log("End:...设置Admin合约外部账户地址完毕")
+    console.log("End:...设置Admin合约外部账户地址完毕");
 }
 initAddress().then( async function(){
     await setDep();
