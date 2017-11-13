@@ -29,8 +29,8 @@ contract User
         bytes32     lev_id_;         //等级
         uint        price_;         //价格（代替浮点型）
         uint        list_qty_;      //挂牌量
-        uint        deal_qty_;      //成交量
         uint        rem_qty_;       //剩余量
+        uint        deal_qty_;      //成交量
     }
 
     //协商交易请求数据结构 发送
@@ -294,12 +294,16 @@ contract User
         int ret = -1;
         getMarketTemp_1(market_id);
         getMarketTemp_2(market_id);
-        trade_map.insert(trade_id,trade_date, opp_user_id, bs, confirm_qty,temp_market); 
+        if (bs == "买")
+            trade_map.insert(trade_id,trade_date, opp_user_id,my_user_id, bs, confirm_qty,temp_market); 
+        if (bs == "卖")
+            trade_map.insert(trade_id,trade_date, my_user_id, opp_user_id, bs, confirm_qty,temp_market); 
+            
 
         if(bs == "买")
         {
-            funds.freeze(confirm_qty * temp_market.price_);
-            admin.insertConfirmListReq(my_user_id, opp_user_id,trade_id);
+           funds.freeze(confirm_qty * temp_market.price_);
+           admin.insertConfirmListReq(my_user_id, opp_user_id,trade_id);
         }
 
          ret = 0;
@@ -581,20 +585,20 @@ contract User
        return sheet_map.size();
     }
     //获取sheetMap元素信息
-    function getSheetMap_1(uint index) external returns(string user_id, uint sheet_id,string class_id, string make_date, string level_id, string wh_id, string place_id)
+    function getSheetMap_1(uint index) external returns(bytes32 user_id, uint sheet_id, bytes32 class_id, bytes32 make_date, bytes32 level_id)
     {
         tmp_sheet = sheet_map.getValueByIndex(index);
-        user_id = LibString.bytes32ToString(tmp_sheet.user_id_);
+        user_id = tmp_sheet.user_id_;
         sheet_id = tmp_sheet.sheet_id_;
-        class_id = LibString.bytes32ToString(tmp_sheet.class_id_);
-        make_date = LibString.bytes32ToString(tmp_sheet.make_date_);
-        level_id = LibString.bytes32ToString(tmp_sheet.lev_id_);
-        wh_id = LibString.bytes32ToString(tmp_sheet.wh_id_);
-        place_id = LibString.bytes32ToString(tmp_sheet.place_id_);
+        class_id = tmp_sheet.class_id_;
+        make_date = tmp_sheet.make_date_;
+        level_id =  tmp_sheet.lev_id_;
     }
-    function getSheetMap_2(uint index) external returns(uint all_amount, uint avail_amount, uint frozen_amount)
+    function getSheetMap_2(uint index) external returns(bytes32 wh_id, bytes32 place_id, uint all_amount, uint avail_amount, uint frozen_amount)
     {
         tmp_sheet = sheet_map.getValueByIndex(index);
+        wh_id = tmp_sheet.wh_id_;
+        place_id = tmp_sheet.place_id_;
         all_amount = tmp_sheet.all_amount_;
         avail_amount = tmp_sheet.available_amount_;
         frozen_amount = tmp_sheet.frozen_amount_; 
@@ -606,16 +610,22 @@ contract User
         return list_req.length;
     }
     //获取挂牌请求列表数据
-	function getListReq(uint i) external returns(uint sheet_id, uint market_id, uint date, string class_id, string make_date, string lev_id, uint price, uint list_qty, uint deal_qty, uint rem_qty)
+	function getListReq_1(uint i) external returns(uint sheet_id, uint market_id, uint date, bytes32 class_id, bytes32 make_date)
     {
         if (i < list_req.length)
         {
             sheet_id    =       list_req[i].sheet_id_;
             market_id   =       list_req[i].market_id_;
             date        =       list_req[i].date_;
-            class_id    =       LibString.bytes32ToString(list_req[i].class_id_);
-            make_date   =       LibString.bytes32ToString(list_req[i].make_date_);
-            lev_id      =       LibString.bytes32ToString(list_req[i].lev_id_);
+            class_id    =       list_req[i].class_id_;
+            make_date   =       list_req[i].make_date_;
+        }
+    }
+	function getListReq_2(uint i) external returns(bytes32 lev_id, uint price, uint list_qty, uint deal_qty, uint rem_qty)
+    {
+        if (i < list_req.length)
+        {
+            lev_id      =       list_req[i].lev_id_;
             price       =       list_req[i].price_;
             list_qty    =       list_req[i].list_qty_;
             deal_qty    =       list_req[i].deal_qty_;
@@ -624,7 +634,7 @@ contract User
     }
 
     //获取协商请发送求列表数据
-	function getNegReqSend(uint i) external returns(uint sheet_id, uint neg_id, uint price, uint neg_qty, string opp_id, string trade_state)
+	function getNegReqSend(uint i) external returns(uint sheet_id, uint neg_id, uint price, uint neg_qty, bytes32 opp_id, bytes32 trade_state)
     {
         if (i < neg_req_send_array.length)
         {
@@ -632,8 +642,8 @@ contract User
             neg_id      =       neg_req_send_array[i].neg_id_;
             price       =       neg_req_send_array[i].price_;
             neg_qty     =       neg_req_send_array[i].neg_qty_;
-            opp_id      =       LibString.bytes32ToString(neg_req_send_array[i].opp_id_);
-            trade_state =       LibString.bytes32ToString(neg_req_send_array[i].trade_state_);
+            opp_id      =       neg_req_send_array[i].opp_id_;
+            trade_state =       neg_req_send_array[i].trade_state_;
         }
     }
 
@@ -651,19 +661,22 @@ contract User
         }
     }
 	 //根据索引获取合同数据
-    function getTrade(uint it) external returns(uint trade_date, uint trade_id, uint sheet_id, string bs, uint price, uint trade_qty,string user_id,string opp_id)
-   {
+    function getTrade_1(uint it) external returns(uint trade_date, uint trade_id, uint sheet_id, bytes32 bs)
+    {
        tmp_trade = trade_map.getValueByIndex(it);
        
        trade_date   =   tmp_trade.trade_date_;
        trade_id     =   tmp_trade.trade_id_;
        sheet_id     =   tmp_trade.sheet_id_;
-       bs           =   LibString.bytes32ToString(tmp_trade.bs_);
+       bs           =   tmp_trade.bs_;
+    }
+   function getTrade_2(uint it) external returns(uint price, uint trade_qty,bytes32 user_id, bytes32 opp_id)
+   {
+       tmp_trade = trade_map.getValueByIndex(it);
        price        =   tmp_trade.price_;
        trade_qty    =   tmp_trade.trade_qty_;
-       //trade_price  =   tmp_trade.price_;
-       user_id      =   LibString.bytes32ToString(tmp_trade.user_id_);
-       opp_id       =   LibString.bytes32ToString(tmp_trade.opp_id_);
+       user_id      =   tmp_trade.user_id_;
+       opp_id       =   tmp_trade.opp_id_;
    }
 } 
 
