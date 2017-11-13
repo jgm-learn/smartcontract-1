@@ -3,6 +3,7 @@ pragma solidity ^0.4.5;
 import "./CreateID.sol";
 import "./Market.sol";
 import "./UserList.sol";
+import "./Admin.sol";
 import "./ContractAddress.sol";
 import "./lib/LibSheetMap.sol";
 import "./lib/StructSheet.sol";
@@ -12,7 +13,6 @@ import "./lib/StructMarket.sol";
 import "./lib/StructFunds.sol";
 import "./lib/LibFunds.sol";
 import "./lib/LibString.sol";
-import "./Admin.sol";
 
 
 contract User
@@ -85,11 +85,18 @@ contract User
     NegReceiveRequest[]               neg_req_receive_array; 
     
 
-
+    function initNoChangeDep()
+    {
+        market_name = "Market";
+        create_id_name = "CreateID";
+        user_list_name = "UserList";
+        admin_name = "Admin";
+    }
     function setContractAddress(address addr)
     {
         contract_address = ContractAddress(addr); 
     }
+    /*
     function setMarketName(string name)
     {
         market_name = name;
@@ -102,14 +109,17 @@ contract User
     {
         user_list_name = name;
     }
+    */
     function setUserID(bytes32 id)
     {
         my_user_id = id;
     }
+    /*
     function setAdmin(string admin_name)
     {
         admin =  Admin(contract_address.getContractAddress(admin_name));
     }
+    */
 
     //初始化CreateID合约变量
     function setCreateID()
@@ -296,6 +306,7 @@ contract User
         if(bs == "买")
         {
             funds.freeze(confirm_qty * temp_market.price_);
+            admin = Admin(contract_address.getContractAddress("Admin"));
             admin.insertConfirmListReq(my_user_id, opp_user_id,trade_id);
         }
 
@@ -506,12 +517,12 @@ contract User
                             break;
                     }
 
-                    trade_map.insert(trade_id, StructTrade.value(date,trade_id,neg_req_receive_array[k].sheet_id_,bs,neg_req_receive_array[k].price_,neg_req_receive_array[k].neg_qty_,buy_user_id,sell_user_id));
+                trade_map.insert(trade_id, StructTrade.value(date,trade_id,neg_req_receive_array[k].sheet_id_,bs,neg_req_receive_array[k].price_,neg_req_receive_array[k].neg_qty_,buy_user_id,sell_user_id));
 
-                    //funds.reduce(neg_req_receive_array[k].qty_ * neg_req_receive_array[k].price_);
-                    funds.freeze(neg_req_receive_array[k].neg_qty_ * neg_req_receive_array[k].price_);
-
-                  admin.insertConfirmNegReq(my_user_id, sell_user_id, trade_id);
+                //funds.reduce(neg_req_receive_array[k].qty_ * neg_req_receive_array[k].price_);
+                funds.freeze(neg_req_receive_array[k].neg_qty_ * neg_req_receive_array[k].price_);
+                admin = Admin(contract_address.getContractAddress("Admin"));
+                admin.insertConfirmNegReq(my_user_id, sell_user_id, trade_id);
             }
             return 0;
     }
