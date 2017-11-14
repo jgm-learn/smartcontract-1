@@ -2,12 +2,14 @@ pragma solidity ^0.4.11;
  
 import "./lib/StructUserAddr.sol";
 import "./lib/LibUserAddrMap.sol";
+import "./User.sol";
 
 contract UserList
 {
     using LibUserAddrMap for LibUserAddrMap.UserAddrMap;
     LibUserAddrMap.UserAddrMap   user_map;
     StructUserAddr.value user_addr;
+    User user;
 
     function addUser(address external_addr, address agent_addr, bytes32 user_id, int user_auth)
     {

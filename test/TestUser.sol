@@ -52,7 +52,7 @@ contract TestUser
 		market_name     = "market";
 		create_id_name  = "create_id";
 		user_list_name  = "user_list";
-        admin_name      = "admin";
+        admin_name      = "Admin";
 		user_id         = "user";
 		user_a_id       = "I am user a";
 		user_b_id       = "I am user b";
@@ -69,6 +69,8 @@ contract TestUser
 		user_list.addUser(user,user,user_id,1); 
 		user_list.addUser(user_a,user_a,user_a_id,1); 
 		user_list.addUser(user_b,user_b,user_b_id,1); 
+
+        admin.init(contract_addr,user_list_name);
 
 		user.setContractAddress(contract_addr);
 		user.setMarketName(market_name);
