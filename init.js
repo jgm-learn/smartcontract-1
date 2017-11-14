@@ -1,12 +1,17 @@
 //可配置
-var god_account= "0x0E5977772f48A15bc990de2fA53E63f2cB814BbB"; //root
-var admin_extern_addr = "0x0E5977772f48A15bc990de2fA53E63f2cB814BbB";
+var cfg = require('./config.js');
 
-//不要改动
-var market_name ="Market";
-var create_id_name ="CreateID";
-var user_list_name ="UserList";
-var admin_name ="Admin";
+var rpc_info = "http://"+cfg.Host+":"+cfg.Port;
+var god_account = cfg.GodAddr;
+var admin_extern_addr   = cfg.AdminAddr;
+var Web3                = require('web3');
+var web3                = new Web3.providers.HttpProvider(rpc_info);
+var contract            = require("truffle-contract");
+
+market_name     =cfg.market_name;
+create_id_name  =cfg.create_id_name;
+user_list_name  =cfg.user_list_name;
+admin_name      =cfg.admin_name;
 
 // Step 1: Get a contract into my application
 var UserList_json           = require("./build/contracts/UserList.json");
@@ -17,10 +22,7 @@ var Login_json              = require("./build/contracts/Login.json");
 var Admin_json              = require("./build/contracts/Admin.json");
 var Proxy_json              = require("./build/contracts/Proxy.json");
 
-var Web3                    = require('web3');
-
 // Step 2: Turn that contract into an abstraction I can use
-var contract        = require("truffle-contract");
 var UserList        = contract(UserList_json);
 var ContractAddress = contract(ContractAddress_json);
 var Market          = contract(Market_json);
@@ -30,7 +32,6 @@ var Admin           = contract(Admin_json);
 var Proxy           = contract(Proxy_json);
 
 // Step 3: Provision the contract with a web3 provider
-var web3 = new Web3.providers.HttpProvider("http://192.168.22.123:8545");
 UserList.setProvider(web3);
 ContractAddress.setProvider(web3);
 Market.setProvider(web3);
