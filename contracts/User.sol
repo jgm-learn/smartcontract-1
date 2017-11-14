@@ -294,7 +294,7 @@ contract User
         int ret = -1;
         getMarketTemp_1(market_id);
         getMarketTemp_2(market_id);
-        trade_map.insert(trade_id,trade_date, opp_user_id, bs, confirm_qty,temp_market); 
+        trade_map.insert(trade_id,trade_date, opp_user_id, bs, confirm_qty, confirm_qty*temp_market.price_*fee,"未交收",temp_market); 
 
         if(bs == "买")
         {
@@ -481,6 +481,9 @@ contract User
     //构建合同
     function recordNegTrade(uint trade_id, uint date, bytes32 buy_user_id,bytes32 sell_user_id, bytes32 bs, uint neg_id) returns(int ) 
     {
+        uint sheet_id;
+        uint price;
+        uint qty;
         if(bs == "卖")
             {
                 //判断发送请求数组是否为空
@@ -492,8 +495,11 @@ contract User
                     if(neg_req_send_array[i].neg_id_ == neg_id)
                         break;
                 }
+                sheet_id    =   neg_req_send_array[i].sheet_id_;
+                price   =   neg_req_send_array[i].price_;
+                qty     =   neg_req_send_array[i].neg_qty_;
 
-                trade_map.insert(trade_id, StructTrade.value(date,trade_id,neg_req_send_array[i].sheet_id_,bs,neg_req_send_array[i].price_,neg_req_send_array[i].neg_qty_,sell_user_id,buy_user_id));
+                trade_map.insert(trade_id, StructTrade.value(date,trade_id,sheet_id,bs,price,qty,qty*price*fee,sell_user_id,buy_user_id,"未交收"));
 
                 //funds.insert(neg_req_send_array[i].qty_ * neg_req_send_array[i].price_);
             }
@@ -508,8 +514,11 @@ contract User
                         if(neg_req_receive_array[k].neg_id_ == neg_id)
                             break;
                     }
+                sheet_id    =   neg_req_receive_array[k].sheet_id_;
+                price   =   neg_req_receive_array[k].price_;
+                qty     =   neg_req_receive_array[k].neg_qty_;
 
-                    trade_map.insert(trade_id, StructTrade.value(date,trade_id,neg_req_receive_array[k].sheet_id_,bs,neg_req_receive_array[k].price_,neg_req_receive_array[k].neg_qty_,buy_user_id,sell_user_id));
+                trade_map.insert(trade_id, StructTrade.value(date,trade_id,sheet_id,bs,price,qty,qty*price*fee,buy_user_id,sell_user_id,"未成交"));
 
                     //funds.reduce(neg_req_receive_array[k].qty_ * neg_req_receive_array[k].price_);
                     funds.freeze(neg_req_receive_array[k].neg_qty_ * neg_req_receive_array[k].price_);

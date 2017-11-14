@@ -1,0 +1,103 @@
+{
+  "contract_name": "LibSheetMap",
+  "abi": [
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "self",
+          "type": "LibSheetMap.SheetMap storage"
+        },
+        {
+          "name": "k",
+          "type": "uint256"
+        },
+        {
+          "name": "qty",
+          "type": "uint256"
+        }
+      ],
+      "name": "freeze",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "self",
+          "type": "LibSheetMap.SheetMap storage"
+        },
+        {
+          "name": "k",
+          "type": "uint256"
+        },
+        {
+          "name": "qty",
+          "type": "uint256"
+        }
+      ],
+      "name": "add",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "self",
+          "type": "LibSheetMap.SheetMap storage"
+        },
+        {
+          "name": "k",
+          "type": "uint256"
+        },
+        {
+          "name": "qty",
+          "type": "uint256"
+        }
+      ],
+      "name": "reduce",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    }
+  ],
+  "unlinked_binary": "0x6060604052341561000f57600080fd5b5b61011c8061001f6000396000f300606060405263ffffffff7c01000000000000000000000000000000000000000000000000000000006000350416637136c1ad81146050578063cac8f2f8146061578063ee9f3ff7146072575b600080fd5b605f6004356024356044356083565b005b605f60043560243560443560ab565b005b605f60043560243560443560d2565b005b600082815260208490526040902060088101805483900390556009018054820190555b505050565b6000828152602084905260409020600781018054830190556008018054820190555b505050565b6000828152602084905260409020600701805482900390555b5050505600a165627a7a72305820f8e4c38d073c0c9d0b48670171bbfc23e58afd289d079b9b4907e9339b3a16bc0029",
+  "networks": {
+    "1509582672134": {
+      "events": {},
+      "links": {},
+      "address": "0x5a5e4f0ca3e446f3c6b8bc41b47da9664a36389b",
+      "updated_at": 1509583824729
+    },
+    "1509583833667": {
+      "events": {},
+      "links": {},
+      "address": "0x7d7b37fc5d982c55a77e155c064cd9e1b8335fa9",
+      "updated_at": 1509583961436
+    },
+    "1509582302875": {
+      "events": {},
+      "links": {},
+      "address": "0x759b3fcb8b651f46819992a54ac4b563555b841d",
+      "updated_at": 1509585507617
+    },
+    "1510217150097": {
+      "events": {},
+      "links": {},
+      "address": "0x7215524b561b4e4f64fb7a66bfa1667d9575171b",
+      "updated_at": 1510217204561
+    },
+    "1510293197895": {
+      "events": {},
+      "links": {},
+      "address": "0xb39aeaf4f2e6b455e509d67b4342120817817db7",
+      "updated_at": 1510296390671
+    }
+  },
+  "schema_version": "0.0.5",
+  "updated_at": 1510296390671
+}

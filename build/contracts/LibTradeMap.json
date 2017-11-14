@@ -1,0 +1,39 @@
+{
+  "contract_name": "LibTradeMap",
+  "abi": [],
+  "unlinked_binary": "0x60606040523415600e57600080fd5b5b603680601c6000396000f30060606040525b600080fd00a165627a7a72305820170e3c4cd2143214b4f9541034fe84bd1d09d4ff55d0b90faec588b84f48aebb0029",
+  "networks": {
+    "1509582672134": {
+      "events": {},
+      "links": {},
+      "address": "0x4c8377c6d745e13fbb3cb0515c6a0295d5483023",
+      "updated_at": 1509583824729
+    },
+    "1509583833667": {
+      "events": {},
+      "links": {},
+      "address": "0xa02bb0a63699fbe82461a6d2a68abb098a559ff1",
+      "updated_at": 1509583961436
+    },
+    "1509582302875": {
+      "events": {},
+      "links": {},
+      "address": "0xb04f6d4949d911ed46841ca9cc1fb3c4b22b76d2",
+      "updated_at": 1509585507617
+    },
+    "1510217150097": {
+      "events": {},
+      "links": {},
+      "address": "0x68adb50711d4a32c92f72292af1ceef30c749e39",
+      "updated_at": 1510217204561
+    },
+    "1510293197895": {
+      "events": {},
+      "links": {},
+      "address": "0x8823aed7ae6a468de7afe570c5e29ea61c314522",
+      "updated_at": 1510296390671
+    }
+  },
+  "schema_version": "0.0.5",
+  "updated_at": 1510296390671
+}

@@ -1,0 +1,39 @@
+{
+  "contract_name": "StructMarket",
+  "abi": [],
+  "unlinked_binary": "0x60606040523415600e57600080fd5b5b603680601c6000396000f30060606040525b600080fd00a165627a7a72305820e07225e68ce5074b1b7ef2eb49289ebf0476e22d6cf4fb150945ffd3e51724310029",
+  "networks": {
+    "1509582672134": {
+      "events": {},
+      "links": {},
+      "address": "0xa6e9f82f25808dcabf84dc1761386d3dbd24a1a7",
+      "updated_at": 1509583824721
+    },
+    "1509583833667": {
+      "events": {},
+      "links": {},
+      "address": "0x6dd628bdf87e9ad9cf771bcae9af0ce53be9b80e",
+      "updated_at": 1509583961430
+    },
+    "1509582302875": {
+      "events": {},
+      "links": {},
+      "address": "0x329981031040ecb441e6c8a7f6ae7d003598d403",
+      "updated_at": 1509585507614
+    },
+    "1510217150097": {
+      "events": {},
+      "links": {},
+      "address": "0xeca1fc238b827b24e9f6062730727eace72ab5fe",
+      "updated_at": 1510217204560
+    },
+    "1510293197895": {
+      "events": {},
+      "links": {},
+      "address": "0xaa6ce0de084d0e743fc9bb38d6abf91eadf73d03",
+      "updated_at": 1510296390679
+    }
+  },
+  "schema_version": "0.0.5",
+  "updated_at": 1510296390679
+}

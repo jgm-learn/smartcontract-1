@@ -1,0 +1,39 @@
+{
+  "contract_name": "StructAddressInfo",
+  "abi": [],
+  "unlinked_binary": "0x60606040523415600e57600080fd5b5b603680601c6000396000f30060606040525b600080fd00a165627a7a72305820e27a93798e985d4b51ff50a46c36cf981ef552f91f321fb34df3b9a4bbf664a10029",
+  "networks": {
+    "1509582672134": {
+      "events": {},
+      "links": {},
+      "address": "0xf379f39398b125401c807aa82a3af650271745b5",
+      "updated_at": 1509583824720
+    },
+    "1509583833667": {
+      "events": {},
+      "links": {},
+      "address": "0x75ba0dae6d8f3db5ad1bbdbbda491cb3e949eaa5",
+      "updated_at": 1509583961430
+    },
+    "1509582302875": {
+      "events": {},
+      "links": {},
+      "address": "0x9baaf643eb926b2975a7c2bcc7224112b7dc60e1",
+      "updated_at": 1509585507614
+    },
+    "1510217150097": {
+      "events": {},
+      "links": {},
+      "address": "0x0a8d798fbe16d5098887c5c89fad82888d297ab8",
+      "updated_at": 1510217204559
+    },
+    "1510293197895": {
+      "events": {},
+      "links": {},
+      "address": "0x84728201975871b1874defe45925431babc7f784",
+      "updated_at": 1510296390679
+    }
+  },
+  "schema_version": "0.0.5",
+  "updated_at": 1510296390679
+}

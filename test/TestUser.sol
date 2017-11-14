@@ -337,7 +337,7 @@ contract TestUser
 		Assert.equal(a_ret_trade_id, 1, "a_ret_trade_id = 1");
 		Assert.equal(a_ret_sheet_id, sheet_id, "");
 		Assert.equal(a_ret_bs, "卖", "");
-		Assert.equal(a_ret_opp_id, user_b_id,"");
+		Assert.equal(a_ret_opp_id, user_b_id,"opp_id = I am user b");
         Assert.equal(user_a.getTotalFunds(), 100000, "");
 
 
@@ -345,7 +345,7 @@ contract TestUser
 		Assert.equal(b_ret_trade_id, 1, "b_ret_trade_id = 1");
 		Assert.equal(b_ret_sheet_id, sheet_id, "");
 		Assert.equal(b_ret_bs, "买", " b_ret_bs  ");
-		Assert.equal(b_ret_opp_id, user_a_id," b_ret_opp_id = I am user b ");
+		Assert.equal(b_ret_opp_id, user_a_id," b_ret_opp_id = I am user a ");
         Assert.equal(user_b.getAvaFunds(), 40000, "");
 
 	}

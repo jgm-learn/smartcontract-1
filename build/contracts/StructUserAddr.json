@@ -1,0 +1,39 @@
+{
+  "contract_name": "StructUserAddr",
+  "abi": [],
+  "unlinked_binary": "0x60606040523415600e57600080fd5b5b603680601c6000396000f30060606040525b600080fd00a165627a7a72305820b12c117b76a70598eda0b716e6c5d5c4bdab2969c63ebe65acef8c51af312a800029",
+  "networks": {
+    "1509582672134": {
+      "events": {},
+      "links": {},
+      "address": "0x55f69daf2c623fd5287f67247f0b624bcfd642a5",
+      "updated_at": 1509583824721
+    },
+    "1509583833667": {
+      "events": {},
+      "links": {},
+      "address": "0x4aa2f250a3cc1ded534afcd59d84f09458613266",
+      "updated_at": 1509583961430
+    },
+    "1509582302875": {
+      "events": {},
+      "links": {},
+      "address": "0x539ca8b53e66d45687222e30179fdb14dbf33828",
+      "updated_at": 1509585507615
+    },
+    "1510217150097": {
+      "events": {},
+      "links": {},
+      "address": "0x930a080a97bdcc08eac80b1676b9dbf241c1b027",
+      "updated_at": 1510217204560
+    },
+    "1510293197895": {
+      "events": {},
+      "links": {},
+      "address": "0xf4d1454fec69ce3f74e5f6607ecfd3de9f271a15",
+      "updated_at": 1510296390679
+    }
+  },
+  "schema_version": "0.0.5",
+  "updated_at": 1510296390679
+}

@@ -1,0 +1,39 @@
+{
+  "contract_name": "LibUserAddrMap",
+  "abi": [],
+  "unlinked_binary": "0x60606040523415600e57600080fd5b5b603680601c6000396000f30060606040525b600080fd00a165627a7a7230582034c56c7b267d35e187a814ea7a86f28ba2fffbcb5e6a755853189b79b61131960029",
+  "networks": {
+    "1509582672134": {
+      "events": {},
+      "links": {},
+      "address": "0xa53921ff16e60925105236046a2d7d4eaff112a0",
+      "updated_at": 1509583824723
+    },
+    "1509583833667": {
+      "events": {},
+      "links": {},
+      "address": "0x2f718c8e4a09416d6b5d82dde6bba41cb4a0a6e4",
+      "updated_at": 1509583961436
+    },
+    "1509582302875": {
+      "events": {},
+      "links": {},
+      "address": "0x7c064f35c6235cf06ed131f820b091626be63f91",
+      "updated_at": 1509585507616
+    },
+    "1510217150097": {
+      "events": {},
+      "links": {},
+      "address": "0x7f534cbbf3ed8c6df9f0b381f2d6c4ec7fa328db",
+      "updated_at": 1510217204560
+    },
+    "1510293197895": {
+      "events": {},
+      "links": {},
+      "address": "0x676515f6ba33f03a44be318c98a9269af994f6e1",
+      "updated_at": 1510296390670
+    }
+  },
+  "schema_version": "0.0.5",
+  "updated_at": 1510296390670
+}

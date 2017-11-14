@@ -1,6 +1,6 @@
 pragma solidity ^0.4.11;
 
-import "./lib/LibString.sol";
+//import "./lib/LibString.sol";
 import "./ContractAddress.sol";
 import "./UserList.sol";
 import "./User.sol";
@@ -24,8 +24,8 @@ contract Admin
 
     ContractAddress     contract_address;
     UserList            user_list;
-    ConfirmListReq[]    confirm_list_req;
-    ConfirmNegReq[]     confirm_neg_req;
+   // ConfirmListReq[]    confirm_list_req;
+    //ConfirmNegReq[]     confirm_neg_req;
     User                user;
     User                user_sell;
 
@@ -66,7 +66,6 @@ contract Admin
     }
     
     //添加用户
-    /*
     function addUser(bytes32 user_id, address external_addr)
     {
         user = new User();
@@ -78,7 +77,6 @@ contract Admin
         user.setAdmin("Admin");
         user_list.addUser(external_addr,user,user_id,1);
     }
-    */
     function addUser(address external_addr, bytes32 user_id, bytes32 class_id, bytes32 make_date,
                     bytes32 lev_id, bytes32 wh_id, bytes32 place_id, uint all_amount,
                     uint frozen_amount, uint available_amount)
@@ -99,20 +97,22 @@ contract Admin
     {
             user_list.delUserInfo(user_id);
     }
+   
     //获取挂牌交易确认请求列表的长度
     function getConfirmListReqSize() returns(uint)
     {
-            return confirm_list_req.length; 
+        return confirm_list_req.length; 
     }
+    
 
     //获取协商交易确认请求列表的长度
     function getConfirmNegReqSize() returns(uint)
     {
-            return confirm_neg_req.length; 
+         return confirm_neg_req.length; 
     }
 
-    //获取挂牌交易确认请求列表的元素
     /*
+    //获取挂牌交易确认请求列表的元素
     function getConfirmListReq(uint index) returns(string user_id,string user_sell_id,uint trade_id,bool status)
     {
             user_id         =   LibString.bytes32ToString(confirm_list_req[index].user_id_);
@@ -120,10 +120,8 @@ contract Admin
             trade_id        =   confirm_list_req[index].trade_id_;
             status          =   confirm_list_req[index].status_;
     }
-    */
 
     //获取协商交易确认请求列表的元素
-    /*
     function getConfirmNegReq(uint index) returns(string user_id,string user_sell_id,uint trade_id,bool status)
     {
             user_id         =   LibString.bytes32ToString(confirm_neg_req[index].user_id_);
@@ -132,4 +130,5 @@ contract Admin
             status          =   confirm_neg_req[index].status_;
     }
     */
+   
 }

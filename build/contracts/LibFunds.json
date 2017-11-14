@@ -1,0 +1,8 @@
+{
+  "contract_name": "LibFunds",
+  "abi": [],
+  "unlinked_binary": "0x60606040523415600e57600080fd5b5b603680601c6000396000f30060606040525b600080fd00a165627a7a723058207dc279d524e1d9d7a573bcce824ce1c4365b2b25ba297f9cd49aff4fe5d4cc480029",
+  "networks": {},
+  "schema_version": "0.0.5",
+  "updated_at": 1510294626529
+}
