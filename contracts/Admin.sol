@@ -58,7 +58,7 @@ contract Admin
         user_sell.confirmNeg(confirm_neg_req[index].trade_id_);
         confirm_neg_req[index].status_   =   false;
     }
-    function addUser(address external_addr, bytes32 user_id)
+    function OnlyaddUser(address external_addr, bytes32 user_id)
     {
         user = new User();
         user.initNoChangeDep();
