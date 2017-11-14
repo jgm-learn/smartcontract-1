@@ -1,6 +1,6 @@
 pragma solidity ^0.4.11;
 
-//import "./lib/LibString.sol";
+import "./lib/LibString.sol";
 import "./ContractAddress.sol";
 import "./User.sol";
 import "./UserList.sol";
@@ -90,6 +90,31 @@ contract Admin
             user_list.delUserInfo(user_id);
     }
    
+    //获取用户id和账户地址
+    function getUserInfo(uint index) returns(string user_id_str, address external_addr)
+    {
+        var(ret_external_addr,agent_addr,user_id,user_auth) = user_list.getUserInfoByIndex(index);
+        user_id_str =   LibString.bytes32ToString(user_id);
+        external_addr = ret_external_addr;
+    }
+
+    //获取用户仓单、资金数据
+    function getSheetFunds(uint index) returns(uint total_sheet, uint available_sheet, uint frozen_sheet, uint available_funds, uint frozen_funds)
+    {
+        user            =   User(user_list.getAgentAddrByIndex(index));
+        (total_sheet,available_sheet,frozen_sheet) =   user.getSheetTotalAmount();
+        available_funds =   user.getAvaFunds();
+        frozen_funds    =   user.getFrozenFunds();
+    }
+
+    //获取仓单数据
+    function getSheetInfo(uint index) returns(string user_id_str, uint sheet_id,string class_id_str,string make_date_str,string lev_id_str,string wh_id_str, string place_id_str)
+    {
+        user                =   User(user_list.getAgentAddrByIndex(index));
+        user_id_str         =   LibString.bytes32ToString(user_list.getUserIDByIndex(index));
+        var(class_id,make_date,lev_id,wh_id,place_id) = user.getSheetAttributeByIndex(index);
+    }
+
     //获取挂牌交易确认请求列表的长度
     function getConfirmListReqSize() returns(uint)
     {
@@ -103,7 +128,6 @@ contract Admin
          return confirm_neg_req.length; 
     }
 
-    /*
     //获取挂牌交易确认请求列表的元素
     function getConfirmListReq(uint index) external returns(string user_id,string user_sell_id,uint trade_id,bool status)
     {
@@ -121,5 +145,4 @@ contract Admin
             trade_id        =   confirm_neg_req[index].trade_id_;
             status          =   confirm_neg_req[index].status_;
     }
-    */
 }

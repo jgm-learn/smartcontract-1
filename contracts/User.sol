@@ -132,7 +132,13 @@ contract User
                                                       available_amount,frozen_amount));
     }
 
-    //获取持有者的仓单数量
+    //获取所有仓单的总数量
+    function getSheetTotalAmount() returns(uint ,uint,uint)
+    {
+        var(total_all_amount,total_available_amount, total_frozen_amount) = sheet_map.getTotalAmount();
+        return (total_all_amount,total_available_amount, total_frozen_amount);
+    }
+    //获取持有者的某一种仓单的数量
     function getSheetAmount(uint sheet_id) returns (uint all_amount, uint available_amount, uint frozen_amount)
     {
         StructSheet.value memory sheet = sheet_map.getValue(sheet_id);
@@ -173,6 +179,16 @@ contract User
         place_id    =   tmp_sheet.place_id_;
     }
 
+    //获取仓单信息
+    function getSheetAttributeByIndex(uint index) returns(bytes32 class_id,bytes32 make_date,bytes32 lev_id,bytes32 wh_id,bytes32 place_id)
+    {
+        tmp_sheet   =   sheet_map.getValueByIndex(index);
+        class_id    =   tmp_sheet.class_id_;
+        make_date   =   tmp_sheet.make_date_;
+        lev_id      =   tmp_sheet.lev_id_;
+        wh_id       =   tmp_sheet.wh_id_;
+        place_id    =   tmp_sheet.place_id_;
+    }
     //初始化资金 资金数扩大100倍
     function insertFunds(uint qty)
     {

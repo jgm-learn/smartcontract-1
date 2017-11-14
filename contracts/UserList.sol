@@ -30,6 +30,11 @@ contract UserList
         user_addr    = user_map.getValue(user_id);
         agent_addr   = user_addr.agent_addr_;
     }
+    function getAgentAddrByIndex(uint index) returns(address agent_addr)
+    {
+        user_addr  = user_map.getValue(index);
+        agent_addr              = user_addr.agent_addr_;
+    }
     function getUserNum() returns (uint)
     {
         return user_map.size();
@@ -41,6 +46,13 @@ contract UserList
         agent_addr              = user_addr.agent_addr_;
         ret_user_id             = user_addr.user_id_;
         user_auth               = user_addr.user_auth_;
+    }
+
+    //获取user_id
+    function getUserIDByIndex(uint index) returns(bytes32 user_id)
+    {
+        user_addr  = user_map.getValue(index);
+        user_id    = user_addr.user_id_;
     }
 
     //获取外部账户地址
