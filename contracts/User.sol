@@ -96,7 +96,6 @@ contract User
     {
         contract_address = ContractAddress(addr); 
     }
-    /*
     function setMarketName(string name)
     {
         market_name = name;
@@ -109,17 +108,14 @@ contract User
     {
         user_list_name = name;
     }
-    */
     function setUserID(bytes32 id)
     {
         my_user_id = id;
     }
-    /*
     function setAdmin(string admin_name)
     {
         admin =  Admin(contract_address.getContractAddress(admin_name));
     }
-    */
 
     //初始化CreateID合约变量
     function setCreateID()
