@@ -52,7 +52,7 @@ contract TestUser
 		market_name     = "market";
 		create_id_name  = "create_id";
 		user_list_name  = "user_list";
-        admin_name      = "admin";
+        admin_name      = "Admin";
 		user_id         = "user";
 		user_a_id       = "I am user a";
 		user_b_id       = "I am user b";
@@ -69,6 +69,8 @@ contract TestUser
 		user_list.addUser(user,user,user_id,1); 
 		user_list.addUser(user_a,user_a,user_a_id,1); 
 		user_list.addUser(user_b,user_b,user_b_id,1); 
+
+        admin.init(contract_addr,user_list_name);
 
 		user.setContractAddress(contract_addr);
 		user.setMarketName(market_name);
@@ -337,7 +339,7 @@ contract TestUser
 		Assert.equal(a_ret_trade_id, 1, "a_ret_trade_id = 1");
 		Assert.equal(a_ret_sheet_id, sheet_id, "");
 		Assert.equal(a_ret_bs, "卖", "");
-		Assert.equal(a_ret_opp_id, user_b_id,"");
+		Assert.equal(a_ret_opp_id, user_b_id,"opp_id = I am user b");
         Assert.equal(user_a.getTotalFunds(), 100000, "");
 
 
@@ -345,7 +347,7 @@ contract TestUser
 		Assert.equal(b_ret_trade_id, 1, "b_ret_trade_id = 1");
 		Assert.equal(b_ret_sheet_id, sheet_id, "");
 		Assert.equal(b_ret_bs, "买", " b_ret_bs  ");
-		Assert.equal(b_ret_opp_id, user_a_id," b_ret_opp_id = I am user b ");
+		Assert.equal(b_ret_opp_id, user_a_id," b_ret_opp_id = I am user a ");
         Assert.equal(user_b.getAvaFunds(), 40000, "");
 
 	}

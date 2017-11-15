@@ -131,6 +131,18 @@ library LibSheetMap
         }
         return self.data[ self.keyIndex[it] ];
     }
+
+    //获取所有仓单的总数量
+    function getTotalAmount(SheetMap storage self) returns(uint total_all_amount, uint total_available_amount, uint total_frozen_amount)
+    {
+        for(uint i = 0; i < self.keyIndex.length; i++)
+        {
+            total_all_amount            +=   self.data[i].all_amount_;
+            total_available_amount      +=   self.data[i].available_amount_;
+            total_frozen_amount         +=   self.data[i].frozen_amount_;
+        }
+    }
+
     /*
     function getKey(SheetMap storage self, uint it) internal returns (bytes32)
     {

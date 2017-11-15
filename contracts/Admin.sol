@@ -49,6 +49,7 @@ contract Admin
         user_sell.confirmList(confirm_list_req[index].trade_id_);
         confirm_list_req[index].status_  =   true;
     }
+
     //确认协商交易
     function confirmNeg(uint index)
     {
@@ -58,6 +59,7 @@ contract Admin
         user_sell.confirmNeg(confirm_neg_req[index].trade_id_);
         confirm_neg_req[index].status_   =   false;
     }
+
     function OnlyaddUser(address external_addr, bytes32 user_id)
     {
         user = new User();
@@ -66,6 +68,7 @@ contract Admin
         user.setUserID(user_id);
         user_list.addUser(external_addr,user,user_id,1);
     }
+
     function addUser(address external_addr, bytes32 user_id, bytes32 class_id, bytes32 make_date,
                     bytes32 lev_id, bytes32 wh_id, bytes32 place_id, uint all_amount,
                     uint frozen_amount, uint available_amount, uint funds)
@@ -83,17 +86,45 @@ contract Admin
     {
             user_list.delUserInfo(user_id);
     }
+   
+    //获取用户id和账户地址
+    function getUserInfo(uint index) returns(string user_id_str, address external_addr)
+    {
+        var(ret_external_addr,agent_addr,user_id,user_auth) = user_list.getUserInfoByIndex(index);
+        user_id_str =   LibString.bytes32ToString(user_id);
+        external_addr = ret_external_addr;
+    }
+
+    //获取用户仓单、资金数据
+    function getSheetFunds(uint index) returns(uint total_sheet, uint available_sheet, uint frozen_sheet, uint available_funds, uint frozen_funds)
+    {
+        user            =   User(user_list.getAgentAddrByIndex(index));
+        (total_sheet,available_sheet,frozen_sheet) =   user.getSheetTotalAmount();
+        available_funds =   user.getAvaFunds();
+        frozen_funds    =   user.getFrozenFunds();
+    }
+
+    //获取仓单数据
+    function getSheetInfo(uint index) returns(string user_id_str, uint sheet_id,string class_id_str,string make_date_str,string lev_id_str,string wh_id_str, string place_id_str)
+    {
+        user                =   User(user_list.getAgentAddrByIndex(index));
+        user_id_str         =   LibString.bytes32ToString(user_list.getUserIDByIndex(index));
+        var(class_id,make_date,lev_id,wh_id,place_id) = user.getSheetAttributeByIndex(index);
+    }
+
     //获取挂牌交易确认请求列表的长度
     function getConfirmListReqSize() returns(uint)
     {
-            return confirm_list_req.length; 
+        return confirm_list_req.length; 
     }
+    
 
     //获取协商交易确认请求列表的长度
     function getConfirmNegReqSize() returns(uint)
     {
-            return confirm_neg_req.length; 
+         return confirm_neg_req.length; 
     }
+
     //获取挂牌交易确认请求列表的元素
     function getConfirmListReq(uint index) external returns(string user_id,string user_sell_id,uint trade_id,bool status)
     {
