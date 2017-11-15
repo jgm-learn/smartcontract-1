@@ -8,6 +8,11 @@ library LibFunds
         StructFunds.value       data;
     }
 
+    function setFunds(Funds storage self, uint qty) internal
+    {
+        self.data.total_funds_   = qty * 100;
+        self.data.ava_funds_     = qty * 100;
+    }
 
     function insert(Funds storage self, uint qty)  internal 
     {

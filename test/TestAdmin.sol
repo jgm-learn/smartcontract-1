@@ -41,7 +41,7 @@ contract TestAdmin
         contract_addr   =   new ContractAddress();
         market          =   new Market();
         create_id       =   new CreateID();
-        admin           =   new Admin();
+        //admin           =   new Admin();
 
 		market_name     = "market";
         create_id_name  = "create_id";

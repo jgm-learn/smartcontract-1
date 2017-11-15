@@ -1,7 +1,7 @@
 //可配置的信息
 var host = "127.0.0.1"; //ip
-var port = 8548; //port
-var god = "0xa5229bc17266b66dadcbef7c6e809b4deb88e5e1"; //god addr
+var port = 8545; //port
+var god = "0x57cf365c45b13de3e3e71328fb4209f6dd3a6849"; //god addr
 var admin_extern_addr = "0x992e2b919aBd4EA2e5b9B0183ece6C3863E2CbB6"; //admin addr
 
 //导出参数信息
