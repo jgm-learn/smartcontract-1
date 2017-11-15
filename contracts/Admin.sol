@@ -49,6 +49,7 @@ contract Admin
         user_sell.confirmList(confirm_list_req[index].trade_id_);
         confirm_list_req[index].status_  =   true;
     }
+
     //确认协商交易
     function confirmNeg(uint index)
     {
@@ -58,20 +59,16 @@ contract Admin
         user_sell.confirmNeg(confirm_neg_req[index].trade_id_);
         confirm_neg_req[index].status_   =   false;
     }
-    
-    //添加用户
-    function addUser(bytes32 user_id, address external_addr)
+
+    function OnlyaddUser(address external_addr, bytes32 user_id)
     {
         user = new User();
+        user.initNoChangeDep();
         user.setContractAddress(contract_address);
-        user.setMarketName("Market");
-        user.setCreateIDName("CreateID");
-        user.setUserListName("UserList");
         user.setUserID(user_id);
-        user.setAdmin("Admin");
         user_list.addUser(external_addr,user,user_id,1);
     }
-    //添加用户
+
     function addUser(address external_addr, bytes32 user_id, bytes32 class_id, bytes32 make_date,
                     bytes32 lev_id, bytes32 wh_id, bytes32 place_id, uint all_amount,
                     uint frozen_amount, uint available_amount, uint funds)
@@ -135,6 +132,8 @@ contract Admin
             user_sell_id    =   LibString.bytes32ToString(confirm_list_req[index].user_sell_id_);
             trade_id        =   confirm_list_req[index].trade_id_;
             status          =   confirm_list_req[index].status_;
+            //TODO: 添加以下字段
+            //成交量、品种、金额、应收手续费
     }
 
     //获取协商交易确认请求列表的元素

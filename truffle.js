@@ -1,10 +1,13 @@
+var cfg = require('./config.js');
+require('babel-register');
 module.exports = {
   networks: {
     development: {
-      host: "localhost",
-      port: 8545,
-      network_id: "*", // Match any network id
+      host:cfg.Host,
+      port:cfg.Port,
+      network_id: "*", //match any networkID
 	  gas:70000000,
+      from:cfg.GodAddr,
 //	  gasprice:1
     }
   }
