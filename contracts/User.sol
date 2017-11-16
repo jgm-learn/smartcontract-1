@@ -62,7 +62,7 @@ contract User
     LibSheetMap.SheetMap    sheet_map;  //仓单
     LibTradeMap.TradeMap    trade_map;  //合同
     LibFunds.Funds          funds;      //资金
-    uint                    fee;        //手续费
+    uint                    fee_rate;   //手续费
 
     ContractAddress        contract_address;
     Market                 market; 
@@ -194,10 +194,15 @@ contract User
     {
         funds.insert(qty);
     }
+    //重设资金
+    function setFunds(uint qty)
+    {
+        funds.setFunds(qty);
+    }
 
     function setFee(uint n)
     {
-        fee = n;
+        fee_rate = n;
     }
 
     function getTotalFunds() returns(uint)
@@ -317,16 +322,16 @@ contract User
         getMarketTemp_1(market_id);
         getMarketTemp_2(market_id);
         if (bs == "买")
-            trade_map.insert(trade_id,trade_date, opp_user_id,my_user_id, bs, confirm_qty,confirm_qty*temp_market.price_*fee,"未交收",temp_market); 
+            trade_map.insert(trade_id,trade_date, opp_user_id,my_user_id, bs, confirm_qty,confirm_qty*temp_market.price_*fee_rate,"未交收",temp_market); 
         if (bs == "卖")
-            trade_map.insert(trade_id,trade_date, my_user_id, opp_user_id, bs, confirm_qty,confirm_qty*temp_market.price_*fee,"未交收",temp_market); 
+            trade_map.insert(trade_id,trade_date, my_user_id, opp_user_id, bs, confirm_qty,confirm_qty*temp_market.price_*fee_rate,"未交收",temp_market); 
             
 
         if(bs == "买")
         {
            funds.freeze(confirm_qty * temp_market.price_);
            admin = Admin(contract_address.getContractAddress("Admin"));
-           admin.insertConfirmListReq(my_user_id, opp_user_id,trade_id);
+           admin.insertConfirmListReq(my_user_id, opp_user_id,trade_id,temp_market.class_id_,confirm_qty,confirm_qty*temp_market.price_,confirm_qty*temp_market.price_*fee_rate);
         }
 
          ret = 0;
@@ -355,7 +360,7 @@ contract User
             {
                 sheet_map.reduce(sheet_id,qty);
                 funds.insert(qty * price);
-                funds.deductFee(qty*price*fee);
+                funds.deductFee(qty*price*fee_rate);
             }
         else
             {
@@ -526,7 +531,7 @@ contract User
                 price   =   neg_req_send_array[i].price_;
                 qty     =   neg_req_send_array[i].neg_qty_;
 
-                trade_map.insert(trade_id, StructTrade.value(date,trade_id,sheet_id,bs,price,qty,qty*price*fee,sell_user_id,buy_user_id,"未交收"));
+                trade_map.insert(trade_id, StructTrade.value(date,trade_id,sheet_id,bs,price,qty,qty*price*fee_rate,sell_user_id,buy_user_id,"未交收"));
 
                 //funds.insert(neg_req_send_array[i].qty_ * neg_req_send_array[i].price_);
             }
@@ -545,12 +550,12 @@ contract User
                 price   =   neg_req_receive_array[k].price_;
                 qty     =   neg_req_receive_array[k].neg_qty_;
 
-                trade_map.insert(trade_id, StructTrade.value(date,trade_id,sheet_id,bs,price,qty,qty*price*fee,buy_user_id,sell_user_id,"未成交"));
+                trade_map.insert(trade_id, StructTrade.value(date,trade_id,sheet_id,bs,price,qty,qty*price*fee_rate,buy_user_id,sell_user_id,"未成交"));
 
                 //funds.reduce(neg_req_receive_array[k].qty_ * neg_req_receive_array[k].price_);
                 funds.freeze(neg_req_receive_array[k].neg_qty_ * neg_req_receive_array[k].price_);
                 admin = Admin(contract_address.getContractAddress("Admin"));
-                admin.insertConfirmNegReq(my_user_id, sell_user_id, trade_id);
+                admin.insertConfirmNegReq(my_user_id, sell_user_id, trade_id,qty,qty*price,qty*price*fee_rate);
             }
             return 0;
     }
@@ -585,7 +590,7 @@ contract User
             {
                 sheet_map.reduce(sheet_id,qty);
                 funds.insert(qty * price);
-                funds.deductFee(qty*price*fee);
+                funds.deductFee(qty*price*fee_rate);
             }
         else
             {
@@ -693,7 +698,7 @@ contract User
         }
     }
 	 //根据索引获取合同数据
-    function getTrade_1(uint it) external returns(uint trade_date, uint trade_id, uint sheet_id, bytes32 bs)
+    function getTrade_1(uint it) external returns(uint trade_date, uint trade_id, uint sheet_id, bytes32 bs, uint fee)
     {
        tmp_trade = trade_map.getValueByIndex(it);
        
@@ -701,14 +706,16 @@ contract User
        trade_id     =   tmp_trade.trade_id_;
        sheet_id     =   tmp_trade.sheet_id_;
        bs           =   tmp_trade.bs_;
+       fee          =   tmp_trade.fee_;
     }
-   function getTrade_2(uint it) external returns(uint price, uint trade_qty,bytes32 user_id, bytes32 opp_id)
+   function getTrade_2(uint it) external returns(uint price, uint trade_qty, bytes32 user_id, bytes32 opp_id, bytes32 trade_state)
    {
        tmp_trade = trade_map.getValueByIndex(it);
        price        =   tmp_trade.price_;
        trade_qty    =   tmp_trade.trade_qty_;
        user_id      =   tmp_trade.user_id_;
        opp_id       =   tmp_trade.opp_id_;
+       trade_state  =   tmp_trade.trade_state_;
    }
 } 
 

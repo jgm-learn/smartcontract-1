@@ -100,23 +100,25 @@ contract Proxy
 		User user = User(user_list.getUserAgentAddr(user_id));
 		ret = user.getTradeNum();
 	}
-    function getTrade_1(bytes32 id, uint i)external returns(uint trade_date, uint trade_id, uint sheet_id , string bs)
+    function getTrade_1(bytes32 id, uint i)external returns(uint trade_date, uint trade_id, uint sheet_id , string bs, uint fee)
     {
         User user = User(user_list.getUserAgentAddr(id));
-        var (trade_date_, trade_id_, sheet_id_, bs_) = user.getTrade_1(i);
+        var (trade_date_, trade_id_, sheet_id_, bs_,fee_) = user.getTrade_1(i);
         trade_date = trade_date_;
         trade_id = trade_id_;
         sheet_id = sheet_id_;
         bs = LibString.bytes32ToString(bs_);
+        fee =   fee_;
     }
-    function getTrade_2(bytes32 id, uint i)external returns(uint price, uint trade_qty ,string user_id,  string opp_id)
+    function getTrade_2(bytes32 id, uint i)external returns(uint price, uint trade_qty , string user_id,  string opp_id, string trade_state)
     {
         User user = User(user_list.getUserAgentAddr(id));
-        var(price_, trade_qty_, user_id_, opp_id_) = user.getTrade_2(i);
+        var(price_, trade_qty_,user_id_, opp_id_,trade_state_) = user.getTrade_2(i);
         price = price_;
         trade_qty = trade_qty_;
         user_id = LibString.bytes32ToString(user_id_);
         opp_id = LibString.bytes32ToString(opp_id_);
+        trade_state =   LibString.bytes32ToString(trade_state_);
     }
     function getSheetMapNum(bytes32 user_id) returns(uint ret)
 	{

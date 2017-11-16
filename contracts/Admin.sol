@@ -11,6 +11,10 @@ contract Admin
         bytes32 user_id_;
         bytes32 user_sell_id_;
         uint    trade_id_;
+        uint    trade_qty_;
+        bytes32 class_id_;
+        uint    funds_;
+        uint    fee_;
         bool    status_;
     }
     struct ConfirmNegReq
@@ -18,6 +22,10 @@ contract Admin
         bytes32 user_id_;
         bytes32 user_sell_id_;
         uint    trade_id_;
+        uint    trade_qty_;
+        //bytes32 class_id_;//暂时不予考虑
+        uint    funds_;
+        uint    fee_;
         bool    status_;
     }
     ContractAddress     contract_address;
@@ -31,14 +39,14 @@ contract Admin
         contract_address = ContractAddress(addr);
         user_list =  UserList(contract_address.getContractAddress(user_list_name));
     }
-    function insertConfirmListReq(bytes32 user_id, bytes32 user_sell_id,uint trade_id)
+    function insertConfirmListReq(bytes32 user_id, bytes32 user_sell_id,uint trade_id,bytes32 class_id,uint trade_qty,uint funds,uint fee)
     {
-        confirm_list_req.push( ConfirmListReq(user_id,user_sell_id,trade_id,false));
+        confirm_list_req.push( ConfirmListReq(user_id,user_sell_id,trade_id,trade_qty,class_id,funds,fee,false));
     }
 
-    function insertConfirmNegReq(bytes32 user_id, bytes32 user_sell_id, uint trade_id)
+    function insertConfirmNegReq(bytes32 user_id, bytes32 user_sell_id, uint trade_id,uint trade_qty,uint funds,uint fee)
     {
-        confirm_neg_req.push( ConfirmNegReq(user_id,user_sell_id,trade_id,false));
+        confirm_neg_req.push( ConfirmNegReq(user_id,user_sell_id,trade_id,trade_qty,funds,fee,false));
     }
     //确认挂牌交易
     function confirmList(uint index)
@@ -87,6 +95,12 @@ contract Admin
             user_list.delUserInfo(user_id);
     }
    
+    //重设资金
+    function modifyFunds(bytes32 user_id, uint qty)
+    {
+        user    =   User(user_list.getUserAgentAddr(user_id));
+        user.setFunds(qty);
+    }
     //获取用户id和账户地址
     function getUserInfo(uint index) returns(string user_id_str, address external_addr)
     {
@@ -95,7 +109,7 @@ contract Admin
         external_addr = ret_external_addr;
     }
 
-    //获取用户仓单、资金数据
+    //获取用户仓单数量、资金数据
     function getSheetFunds(uint index) returns(uint total_sheet, uint available_sheet, uint frozen_sheet, uint available_funds, uint frozen_funds)
     {
         user            =   User(user_list.getAgentAddrByIndex(index));
@@ -104,7 +118,7 @@ contract Admin
         frozen_funds    =   user.getFrozenFunds();
     }
 
-    //获取仓单数据
+    //获取仓单数据固定属性
     function getSheetInfo(uint index) returns(string user_id_str, uint sheet_id,string class_id_str,string make_date_str,string lev_id_str,string wh_id_str, string place_id_str)
     {
         user                =   User(user_list.getAgentAddrByIndex(index));
@@ -126,22 +140,28 @@ contract Admin
     }
 
     //获取挂牌交易确认请求列表的元素
-    function getConfirmListReq(uint index) external returns(string user_id,string user_sell_id,uint trade_id,bool status)
+    function getConfirmListReq(uint index) external returns(string user_id,string user_sell_id,uint trade_id,string class_id,uint trade_qty,uint funds,uint fee,bool status)
     {
             user_id         =   LibString.bytes32ToString(confirm_list_req[index].user_id_);
             user_sell_id    =   LibString.bytes32ToString(confirm_list_req[index].user_sell_id_);
             trade_id        =   confirm_list_req[index].trade_id_;
+            class_id        =   LibString.bytes32ToString(confirm_list_req[index].class_id_);
+            trade_qty       =   confirm_list_req[index].trade_qty_;
+            funds           =   confirm_list_req[index].funds_;
+            fee             =   confirm_list_req[index].fee_;
             status          =   confirm_list_req[index].status_;
-            //TODO: 添加以下字段
-            //成交量、品种、金额、应收手续费
     }
 
     //获取协商交易确认请求列表的元素
-    function getConfirmNegReq(uint index) external returns(string user_id,string user_sell_id,uint trade_id,bool status)
+    function getConfirmNegReq(uint index) external returns(string user_id,string user_sell_id,uint trade_id,uint trade_qty,uint funds,uint fee,bool status)
     {
             user_id         =   LibString.bytes32ToString(confirm_neg_req[index].user_id_);
             user_sell_id    =   LibString.bytes32ToString(confirm_neg_req[index].user_sell_id_);
             trade_id        =   confirm_neg_req[index].trade_id_;
+            //class_id        =   LibString.bytes32ToString(confirm_list_req[index].class_id_);
+            trade_qty       =   confirm_neg_req[index].trade_qty_;
+            funds           =   confirm_neg_req[index].funds_;
+            fee             =   confirm_neg_req[index].fee_;
             status          =   confirm_neg_req[index].status_;
     }
 }
