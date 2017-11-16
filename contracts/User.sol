@@ -531,7 +531,7 @@ contract User
                 price   =   neg_req_send_array[i].price_;
                 qty     =   neg_req_send_array[i].neg_qty_;
 
-                trade_map.insert(trade_id, StructTrade.value(date,trade_id,sheet_id,bs,price,qty,qty*price*fee_rate,sell_user_id,buy_user_id,"未交收"));
+                trade_map.insert(trade_id, StructTrade.value(date,trade_id,sheet_id,price,qty,qty*price,qty*price*fee_rate,sell_user_id,buy_user_id,bs,"未交收"));
 
                 //funds.insert(neg_req_send_array[i].qty_ * neg_req_send_array[i].price_);
             }
@@ -550,7 +550,7 @@ contract User
                 price   =   neg_req_receive_array[k].price_;
                 qty     =   neg_req_receive_array[k].neg_qty_;
 
-                trade_map.insert(trade_id, StructTrade.value(date,trade_id,sheet_id,bs,price,qty,qty*price*fee_rate,buy_user_id,sell_user_id,"未成交"));
+                trade_map.insert(trade_id, StructTrade.value(date,trade_id,sheet_id,price,qty,qty*price,qty*price*fee_rate,buy_user_id,sell_user_id,bs,"未成交"));
 
                 //funds.reduce(neg_req_receive_array[k].qty_ * neg_req_receive_array[k].price_);
                 funds.freeze(neg_req_receive_array[k].neg_qty_ * neg_req_receive_array[k].price_);
@@ -698,23 +698,24 @@ contract User
         }
     }
 	 //根据索引获取合同数据
-    function getTrade_1(uint it) external returns(uint trade_date, uint trade_id, uint sheet_id, bytes32 bs, uint fee)
+    function getTrade_1(uint it) external returns(uint trade_date, uint trade_id, uint sheet_id,uint price, uint trade_qty,uint payment,uint fee)
     {
        tmp_trade = trade_map.getValueByIndex(it);
        
        trade_date   =   tmp_trade.trade_date_;
        trade_id     =   tmp_trade.trade_id_;
        sheet_id     =   tmp_trade.sheet_id_;
-       bs           =   tmp_trade.bs_;
-       fee          =   tmp_trade.fee_;
-    }
-   function getTrade_2(uint it) external returns(uint price, uint trade_qty, bytes32 user_id, bytes32 opp_id, bytes32 trade_state)
-   {
-       tmp_trade = trade_map.getValueByIndex(it);
        price        =   tmp_trade.price_;
        trade_qty    =   tmp_trade.trade_qty_;
+       payment      =   tmp_trade.payment_;
+       fee          =   tmp_trade.fee_;
+    }
+   function getTrade_2(uint it) external returns( bytes32 user_id, bytes32 opp_id, bytes32 bs,bytes32 trade_state)
+   {
+       tmp_trade = trade_map.getValueByIndex(it);
        user_id      =   tmp_trade.user_id_;
        opp_id       =   tmp_trade.opp_id_;
+       bs           =   tmp_trade.bs_;
        trade_state  =   tmp_trade.trade_state_;
    }
 } 

@@ -36,8 +36,8 @@ library LibTradeMap
         self.data[k].bs_ = bs;
         self.data[k].price_ = market_value.price_;
         self.data[k].trade_qty_ = confirm_qty;
-        //uint        fee_;               //手续费
         self.data[k].fee_       =   fee;
+        self.data[k].payment_     =   confirm_qty * market_value.price_;
         //uint        transfer_money_;    //已划货款
         //uint        remainder_money_;   //剩余货款
         self.data[k].opp_id_ = opp_user_id;
