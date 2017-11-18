@@ -215,14 +215,14 @@ contract TestUser
 		uint sell_qty = 6;
 		user_a.insertSheet(user_a_id,"SR","make_date","level_id","wh_id","产地",all_amount,frozen_amount,available_amount);
         user_a.insertFunds(1000);       //初始化资金
-        user_a.setFee(3);               //设置手续费比率
+        user_a.setFeeRate(3);               //设置手续费比率
 
 		var ret_market_id = user_a.listRequest(user_a_id,sheet_id,sell_price,sell_qty);
 
 		//user_b 摘牌
 		uint buy_qty = 2;
         user_b.insertFunds(1000);       //初始化资金
-        user_b.setFee(3);               //设置手续费比率
+        user_b.setFeeRate(3);               //设置手续费比率
 
 		var ret_delist  = user_b.delistRequest(user_b_id, ret_market_id, buy_qty);//摘牌
         user_a.confirmList(1);         //确认
@@ -255,14 +255,14 @@ contract TestUser
 		uint sell_qty = 6;
 		user_a.insertSheet(user_a_id,"SR","make_date","level_id","wh_id","产地",all_amount,frozen_amount,available_amount);
         user_a.insertFunds(1000);       //初始化资金
-        user_a.setFee(3);               //设置手续费比率
+        user_a.setFeeRate(3);               //设置手续费比率
 
 		var ret_market_id = user_a.listRequest(user_a_id,sheet_id,sell_price,sell_qty);
 
 		//user_b 摘牌
 		uint buy_qty = 6;
         user_b.insertFunds(1000);       //初始化资金
-        user_b.setFee(3);               //设置手续费比率
+        user_b.setFeeRate(3);               //设置手续费比率
 
 		var ret_delist  = user_b.delistRequest(user_b_id, ret_market_id, buy_qty);//摘牌
         user_a.confirmList(1);         //确认
@@ -362,13 +362,13 @@ contract TestUser
 		//创建仓单
 		user_a.insertSheet(user_a_id,"SR","make_date","level_id","wh_id","产地",all_amount,frozen_amount,available_amount);
         user_a.insertFunds(1000);       //初始化资金
-        user_a.setFee(3);               //设置手续费比率
+        user_a.setFeeRate(3);               //设置手续费比率
 
 		//发送协商交易请求
 		user_a.sendNegReq(sheet_id,sell_qty,sell_price,user_b_id);
 
         user_b.insertFunds(1000);       //初始化资金
-        user_b.setFee(3);               //设置手续费比率
+        user_b.setFeeRate(3);               //设置手续费比率
 
 		//同意协商交易
 		ret = user_b.agreeNeg(user_b_id, 1);

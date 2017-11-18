@@ -22,7 +22,7 @@ contract Login
                 ret = -1;
                 return;
             }
-        else if(msg.sender == user_list.getExternal_addr(user_id))
+        else if(msg.sender == user_list.getExternalAddr(user_id))
             {
                ret = 0;
                var(un1,ret_user_addr,un2,ret_user_auth) = user_list.getUserInfo(user_id);//un1,un2代表未使用的变量
@@ -40,7 +40,7 @@ contract Login
                 ret = -1;
                 return;
             }
-        else if(external_addr == user_list.getExternal_addr(user_id))
+        else if(external_addr == user_list.getExternalAddr(user_id))
             {
                ret = 0;
                var(un1,ret_user_addr,un2,ret_user_auth) = user_list.getUserInfo(user_id);//un1,un2代表未使用的变量

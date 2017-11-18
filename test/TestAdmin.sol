@@ -27,6 +27,7 @@ contract TestAdmin
     uint 				frozen_amount;
 
 
+    /*
     function beforeEach()
     {
 		sheet_id            = 1;
@@ -81,6 +82,7 @@ contract TestAdmin
         user_b.setAdmin(admin_name);
 
     }
+    */
 
     /*
 
