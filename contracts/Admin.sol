@@ -93,7 +93,7 @@ contract Admin
         user_sell   = User(user_list.getUserAgentAddr(confirm_neg_req[i].user_sell_id_));
         user.confirmNeg(confirm_neg_req[i].trade_id_);
         user_sell.confirmNeg(confirm_neg_req[i].trade_id_);
-        confirm_neg_req[i].status_   =   false;
+        confirm_neg_req[i].status_   =   true;
     }
 
     //添加用户
@@ -116,7 +116,7 @@ contract Admin
     //添加仓单
     function insertSheet( bytes32 user_id, bytes32 class_id, bytes32 make_date,
                     bytes32 lev_id, bytes32 wh_id, bytes32 place_id, uint all_amount,
-                    uint frozen_amount, uint available_amount, uint funds)
+                    uint frozen_amount, uint available_amount)
     {
         user    =   User(user_list.getUserAgentAddr(user_id));
         user.insertSheet(user_id, class_id, make_date, lev_id, wh_id, place_id, all_amount, frozen_amount, available_amount);
@@ -151,10 +151,14 @@ contract Admin
     */
 
     //获取用户仓单数量、资金数据
-    function getSheetFunds(bytes32 user_id) returns(string user_id_str, address external_addr,uint total_sheet, uint available_sheet, uint frozen_sheet, uint total_funds,uint available_funds, uint frozen_funds)
+    function getSheetFunds(uint index) returns(string user_id_str, address external_addr,uint total_sheet, uint available_sheet, uint frozen_sheet, uint total_funds,uint available_funds, uint frozen_funds)
     {
-        external_addr   =   user_list.getExternalAddr(user_id);
-        user            =   User(user_list.getUserAgentAddr(user_id));
+        bytes32 user_id;
+        address agent_addr;
+        int     user_auth;
+
+        (external_addr,agent_addr,user_id,user_auth) = user_list.getUserInfoByIndex(index);
+        user            =   User(agent_addr);
         (total_sheet,available_sheet,frozen_sheet) =   user.getSheetTotalAmount();
         total_funds     =   user.getTotalFunds();
         available_funds =   user.getAvaFunds();
@@ -162,7 +166,7 @@ contract Admin
     }
 
     //获取sheet_map的长度
-    function getSheetIDAmount(bytes32 user_id) returns(uint)
+    function getSheetMapSize(bytes32 user_id) returns(uint)
     {
         user  =   User(user_list.getUserAgentAddr(user_id));
         return user.getSheetMapSize(); 
