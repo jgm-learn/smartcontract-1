@@ -10,7 +10,10 @@ contract UserList
     LibUserAddrMap.UserAddrMap   user_map;
     StructUserAddr.value user_addr;
     User user;
-
+    function newUser() returns (address)
+    {
+        return new User();
+    }
     function addUser(address external_addr, address agent_addr, bytes32 user_id, int user_auth)
     {
         user_map.insert(user_id, StructUserAddr.value(external_addr, agent_addr, user_id, user_auth));

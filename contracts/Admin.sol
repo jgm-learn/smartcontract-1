@@ -104,7 +104,7 @@ contract Admin
               exist = true;
               return;
         }
-        user = new User();
+        user = User(user_list.newUser());
         user.initNoChangeDep();
         user.setContractAddress(contract_address);
         user.setUserID(user_id);
