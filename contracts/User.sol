@@ -148,7 +148,16 @@ contract User
     }
 
     //获取持有者的某一种仓单的数量
-    function getSheetAmount(uint index) returns (uint all_amount, uint available_amount, uint frozen_amount)
+    function getSheetAmount(uint sheet_id) returns (uint all_amount, uint available_amount, uint frozen_amount)
+    {
+        StructSheet.value memory sheet = sheet_map.getValue(sheet_id);
+        all_amount = sheet.all_amount_;
+        available_amount = sheet.available_amount_;
+        frozen_amount = sheet.frozen_amount_;
+    }
+
+    //获取持有者的某一种仓单的数量
+    function getSheetAmountByIndex(uint index) returns (uint all_amount, uint available_amount, uint frozen_amount)
     {
         StructSheet.value memory sheet = sheet_map.getValueByIndex(index);
         all_amount = sheet.all_amount_;
