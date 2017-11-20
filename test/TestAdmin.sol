@@ -1,8 +1,13 @@
 pragma solidity ^0.4.11;
 
 import "truffle/Assert.sol";
+import "truffle/DeployedAddresses.sol";
 import "../contracts/Admin.sol";
 import "../contracts/User.sol";
+import "../contracts/ContractAddress.sol";
+import "../contracts/Market.sol";
+import "../contracts/UserList.sol";
+import "../contracts/CreateID.sol";
 
 contract TestAdmin
 {
@@ -27,6 +32,7 @@ contract TestAdmin
     uint 				frozen_amount;
 
 
+    /*
     function beforeEach()
     {
 		sheet_id            = 1;
@@ -81,6 +87,7 @@ contract TestAdmin
         user_b.setAdmin(admin_name);
 
     }
+    */
 
     /*
 

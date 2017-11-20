@@ -28,9 +28,9 @@ contract TestLogin
 
     function testVerfication()
     {
-        admin.OnlyaddUser(0x123,"A");
-        admin.OnlyaddUser(0x456,"B");
-        admin.OnlyaddUser(0x789,"C");
+        admin.addUser("A",0x123,100);
+        admin.addUser("B",0x456,100);
+        admin.addUser("C",0x789,100);
 
         var(ret,user_auth,user_addr_1) = login.verfication("B");
         var(ret_1,user_auth_1,user_addr_2) = login.verfication("B");

@@ -27,6 +27,8 @@ contract User
         bytes32     class_id_;       //品种代码
         bytes32     make_date_;      //产期
         bytes32     lev_id_;         //等级
+        bytes32      wh_id_;         //仓库代码
+        bytes32      place_id_;      //产地代码
         uint        price_;         //价格（代替浮点型）
         uint        list_qty_;      //挂牌量
         uint        rem_qty_;       //剩余量
@@ -138,10 +140,26 @@ contract User
         var(total_all_amount,total_available_amount, total_frozen_amount) = sheet_map.getTotalAmount();
         return (total_all_amount,total_available_amount, total_frozen_amount);
     }
+
+    //获取sheet_map的长度
+    function getSheetMapSize() returns(uint)
+    {
+        return sheet_map.length();
+    }
+
     //获取持有者的某一种仓单的数量
     function getSheetAmount(uint sheet_id) returns (uint all_amount, uint available_amount, uint frozen_amount)
     {
         StructSheet.value memory sheet = sheet_map.getValue(sheet_id);
+        all_amount = sheet.all_amount_;
+        available_amount = sheet.available_amount_;
+        frozen_amount = sheet.frozen_amount_;
+    }
+
+    //获取持有者的某一种仓单的数量
+    function getSheetAmountByIndex(uint index) returns (uint all_amount, uint available_amount, uint frozen_amount)
+    {
+        StructSheet.value memory sheet = sheet_map.getValueByIndex(index);
         all_amount = sheet.all_amount_;
         available_amount = sheet.available_amount_;
         frozen_amount = sheet.frozen_amount_;
@@ -180,9 +198,10 @@ contract User
     }
 
     //获取仓单信息
-    function getSheetAttributeByIndex(uint index) returns(bytes32 class_id,bytes32 make_date,bytes32 lev_id,bytes32 wh_id,bytes32 place_id)
+    function getSheetAttributeByIndex(uint index) returns(uint sheet_id,bytes32 class_id,bytes32 make_date,bytes32 lev_id,bytes32 wh_id,bytes32 place_id)
     {
         tmp_sheet   =   sheet_map.getValueByIndex(index);
+        sheet_id    =   tmp_sheet.sheet_id_;
         class_id    =   tmp_sheet.class_id_;
         make_date   =   tmp_sheet.make_date_;
         lev_id      =   tmp_sheet.lev_id_;
@@ -200,7 +219,8 @@ contract User
         funds.setFunds(qty);
     }
 
-    function setFee(uint n)
+    //设置手续费费率
+    function setFeeRate(uint n)
     {
         fee_rate = n;
     }
@@ -240,8 +260,8 @@ contract User
                     freeze(sheet_id, sell_qty);
 
                     //将挂牌数据保存到挂牌请求列表中
-                    //仓单序号,挂牌编号,挂牌日期,类别,产期,等级,价格,挂牌量,剩余量,成交量,
-                    list_req.push(ListRequest(sheet_id, ret_market_id, date, sheet.class_id_, sheet.make_date_, sheet.lev_id_, price, sell_qty, sell_qty,0)); 
+                    //仓单序号,挂牌编号,挂牌日期,类别,产期,等级,仓库，产地，价格,挂牌量,剩余量,成交量,
+                    list_req.push(ListRequest(sheet_id, ret_market_id, date, sheet.class_id_, sheet.make_date_, sheet.lev_id_, sheet.wh_id_,sheet.place_id_,price, sell_qty, sell_qty,0)); 
                     getRet(ret_market_id);
             }
             return ret_market_id;
@@ -531,7 +551,7 @@ contract User
                 price   =   neg_req_send_array[i].price_;
                 qty     =   neg_req_send_array[i].neg_qty_;
 
-                trade_map.insert(trade_id, StructTrade.value(date,trade_id,sheet_id,bs,price,qty,qty*price*fee_rate,sell_user_id,buy_user_id,"未交收"));
+                trade_map.insert(trade_id, StructTrade.value(date,trade_id,sheet_id,price,qty,qty*price,qty*price*fee_rate,sell_user_id,buy_user_id,bs,"未交收"));
 
                 //funds.insert(neg_req_send_array[i].qty_ * neg_req_send_array[i].price_);
             }
@@ -550,7 +570,7 @@ contract User
                 price   =   neg_req_receive_array[k].price_;
                 qty     =   neg_req_receive_array[k].neg_qty_;
 
-                trade_map.insert(trade_id, StructTrade.value(date,trade_id,sheet_id,bs,price,qty,qty*price*fee_rate,buy_user_id,sell_user_id,"未成交"));
+                trade_map.insert(trade_id, StructTrade.value(date,trade_id,sheet_id,price,qty,qty*price,qty*price*fee_rate,buy_user_id,sell_user_id,bs,"未成交"));
 
                 //funds.reduce(neg_req_receive_array[k].qty_ * neg_req_receive_array[k].price_);
                 funds.freeze(neg_req_receive_array[k].neg_qty_ * neg_req_receive_array[k].price_);
@@ -646,23 +666,26 @@ contract User
     {
         return list_req.length;
     }
+
     //获取挂牌请求列表数据
-	function getListReq_1(uint i) external returns(uint sheet_id, uint market_id, uint date, bytes32 class_id, bytes32 make_date)
+	function getListReq_1(uint i) external returns( bytes32 class_id, bytes32 make_date,bytes32 lev_id,bytes32 wh_id, bytes32 place_id)
+    {
+        if (i < list_req.length)
+        {
+            class_id    =       list_req[i].class_id_;
+            make_date   =       list_req[i].make_date_;
+            lev_id      =       list_req[i].lev_id_;
+            wh_id       =       list_req[i].wh_id_;
+            place_id    =       list_req[i].place_id_;
+        }
+    }
+	function getListReq_2(uint i) external returns( uint market_id,uint sheet_id,uint date,uint price, uint list_qty, uint deal_qty, uint rem_qty)
     {
         if (i < list_req.length)
         {
             sheet_id    =       list_req[i].sheet_id_;
             market_id   =       list_req[i].market_id_;
             date        =       list_req[i].date_;
-            class_id    =       list_req[i].class_id_;
-            make_date   =       list_req[i].make_date_;
-        }
-    }
-	function getListReq_2(uint i) external returns(bytes32 lev_id, uint price, uint list_qty, uint deal_qty, uint rem_qty)
-    {
-        if (i < list_req.length)
-        {
-            lev_id      =       list_req[i].lev_id_;
             price       =       list_req[i].price_;
             list_qty    =       list_req[i].list_qty_;
             deal_qty    =       list_req[i].deal_qty_;
@@ -698,24 +721,25 @@ contract User
         }
     }
 	 //根据索引获取合同数据
-    function getTrade_1(uint it) external returns(uint trade_date, uint trade_id, uint sheet_id, bytes32 bs, uint fee)
+   function getTrade_1(uint it) external returns( bytes32 user_id, bytes32 opp_id, bytes32 bs,bytes32 trade_state)
+   {
+       tmp_trade = trade_map.getValueByIndex(it);
+       user_id      =   tmp_trade.user_id_;
+       opp_id       =   tmp_trade.opp_id_;
+       bs           =   tmp_trade.bs_;
+       trade_state  =   tmp_trade.trade_state_;
+   }
+    function getTrade_2(uint it) external returns(uint trade_date, uint trade_id, uint sheet_id,uint price, uint trade_qty,uint payment,uint fee)
     {
        tmp_trade = trade_map.getValueByIndex(it);
        
        trade_date   =   tmp_trade.trade_date_;
        trade_id     =   tmp_trade.trade_id_;
        sheet_id     =   tmp_trade.sheet_id_;
-       bs           =   tmp_trade.bs_;
-       fee          =   tmp_trade.fee_;
-    }
-   function getTrade_2(uint it) external returns(uint price, uint trade_qty, bytes32 user_id, bytes32 opp_id, bytes32 trade_state)
-   {
-       tmp_trade = trade_map.getValueByIndex(it);
        price        =   tmp_trade.price_;
        trade_qty    =   tmp_trade.trade_qty_;
-       user_id      =   tmp_trade.user_id_;
-       opp_id       =   tmp_trade.opp_id_;
-       trade_state  =   tmp_trade.trade_state_;
-   }
+       payment      =   tmp_trade.payment_;
+       fee          =   tmp_trade.fee_;
+    }
 } 
 

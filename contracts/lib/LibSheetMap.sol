@@ -65,6 +65,8 @@ library LibSheetMap
             return true;
         }
     }
+
+    //根据仓单ID，获取仓单信息
     function getValue(SheetMap storage self, uint k) internal returns (StructSheet.value)
     {
         return self.data[k];

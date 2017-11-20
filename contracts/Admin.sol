@@ -34,11 +34,26 @@ contract Admin
     ConfirmNegReq[]     confirm_neg_req;
     User                user;
     User                user_sell;
+    uint                fee_rate_ ;
+
     function init(address addr, string user_list_name)
     {
         contract_address = ContractAddress(addr);
         user_list =  UserList(contract_address.getContractAddress(user_list_name));
     }
+
+    //设置手续费
+    function setFeeRate(uint fee_rate)
+    {
+        fee_rate_ = fee_rate;
+        uint user_amount = user_list.getUserNum();
+        for(uint i = 0; i < user_amount; i++)
+        {
+            user = User(user_list.getAgentAddrByIndex(i));
+            user.setFeeRate(fee_rate);
+        }
+    }
+
     function insertConfirmListReq(bytes32 user_id, bytes32 user_sell_id,uint trade_id,bytes32 class_id,uint trade_qty,uint funds,uint fee)
     {
         confirm_list_req.push( ConfirmListReq(user_id,user_sell_id,trade_id,trade_qty,class_id,funds,fee,false));
@@ -49,45 +64,62 @@ contract Admin
         confirm_neg_req.push( ConfirmNegReq(user_id,user_sell_id,trade_id,trade_qty,funds,fee,false));
     }
     //确认挂牌交易
-    function confirmList(uint index)
+    function confirmList(uint trade_id)
     {
-        user        = User(user_list.getUserAgentAddr(confirm_list_req[index].user_id_));
-        user_sell   = User(user_list.getUserAgentAddr(confirm_list_req[index].user_sell_id_));
-        user.confirmList(confirm_list_req[index].trade_id_);
-        user_sell.confirmList(confirm_list_req[index].trade_id_);
-        confirm_list_req[index].status_  =   true;
+        uint i = 0;
+        for(i; i < confirm_list_req.length; i++)
+        {
+            if(trade_id == confirm_list_req[i].trade_id_)
+                break;
+        }
+
+        user        = User(user_list.getUserAgentAddr(confirm_list_req[i].user_id_));
+        user_sell   = User(user_list.getUserAgentAddr(confirm_list_req[i].user_sell_id_));
+        user.confirmList(confirm_list_req[i].trade_id_);
+        user_sell.confirmList(confirm_list_req[i].trade_id_);
+        confirm_list_req[i].status_  =   true;
     }
 
     //确认协商交易
-    function confirmNeg(uint index)
+    function confirmNeg(uint trade_id)
     {
-        user        = User(user_list.getUserAgentAddr(confirm_neg_req[index].user_id_));
-        user_sell   = User(user_list.getUserAgentAddr(confirm_neg_req[index].user_sell_id_));
-        user.confirmNeg(confirm_neg_req[index].trade_id_);
-        user_sell.confirmNeg(confirm_neg_req[index].trade_id_);
-        confirm_neg_req[index].status_   =   false;
+        uint i = 0;
+        for(i; i < confirm_list_req.length; i++)
+        {
+            if(trade_id == confirm_list_req[i].trade_id_)
+                break;
+        }
+        user        = User(user_list.getUserAgentAddr(confirm_neg_req[i].user_id_));
+        user_sell   = User(user_list.getUserAgentAddr(confirm_neg_req[i].user_sell_id_));
+        user.confirmNeg(confirm_neg_req[i].trade_id_);
+        user_sell.confirmNeg(confirm_neg_req[i].trade_id_);
+        confirm_neg_req[i].status_   =   true;
     }
 
-    function OnlyaddUser(address external_addr, bytes32 user_id)
+    //添加用户
+    function addUser(bytes32 user_id,address external_addr, uint funds) returns(bool exist)
     {
+        if(user_list.isExisted(user_id))
+        {
+              exist = true;
+              return;
+        }
         user = new User();
         user.initNoChangeDep();
         user.setContractAddress(contract_address);
         user.setUserID(user_id);
         user_list.addUser(external_addr,user,user_id,1);
+        user.setFunds(funds);
+        user.setFeeRate(fee_rate_);
     }
 
-    function addUser(address external_addr, bytes32 user_id, bytes32 class_id, bytes32 make_date,
+    //添加仓单
+    function insertSheet( bytes32 user_id, bytes32 class_id, bytes32 make_date,
                     bytes32 lev_id, bytes32 wh_id, bytes32 place_id, uint all_amount,
-                    uint frozen_amount, uint available_amount, uint funds)
-    {//TODO 重复用户判断
-        user = new User();
-        user.initNoChangeDep();
-        user.setContractAddress(contract_address);
-        user.setUserID(user_id);
+                    uint frozen_amount, uint available_amount)
+    {
+        user    =   User(user_list.getUserAgentAddr(user_id));
         user.insertSheet(user_id, class_id, make_date, lev_id, wh_id, place_id, all_amount, frozen_amount, available_amount);
-        user.insertFunds(funds);
-        user_list.addUser(external_addr,user,user_id,1);
     }
     //删除用户
     function delUser(bytes32 user_id)
@@ -101,6 +133,14 @@ contract Admin
         user    =   User(user_list.getUserAgentAddr(user_id));
         user.setFunds(qty);
     }
+    
+
+    //获取用户的数量
+    function getUserAmount() returns(uint)
+    {
+        return user_list.getUserNum();
+    }
+    /*
     //获取用户id和账户地址
     function getUserInfo(uint index) returns(string user_id_str, address external_addr)
     {
@@ -108,22 +148,47 @@ contract Admin
         user_id_str =   LibString.bytes32ToString(user_id);
         external_addr = ret_external_addr;
     }
+    */
 
     //获取用户仓单数量、资金数据
-    function getSheetFunds(uint index) returns(uint total_sheet, uint available_sheet, uint frozen_sheet, uint available_funds, uint frozen_funds)
+    function getSheetFunds(uint index) returns(string user_id_str, address external_addr,uint total_sheet, uint available_sheet, uint frozen_sheet, uint total_funds,uint available_funds, uint frozen_funds)
     {
-        user            =   User(user_list.getAgentAddrByIndex(index));
+        bytes32 user_id;
+        address agent_addr;
+        int     user_auth;
+
+        (external_addr,agent_addr,user_id,user_auth) = user_list.getUserInfoByIndex(index);
+        user            =   User(agent_addr);
         (total_sheet,available_sheet,frozen_sheet) =   user.getSheetTotalAmount();
+        total_funds     =   user.getTotalFunds();
         available_funds =   user.getAvaFunds();
         frozen_funds    =   user.getFrozenFunds();
     }
 
-    //获取仓单数据固定属性
-    function getSheetInfo(uint index) returns(string user_id_str, uint sheet_id,string class_id_str,string make_date_str,string lev_id_str,string wh_id_str, string place_id_str)
+    //获取sheet_map的长度
+    function getSheetMapSize(bytes32 user_id) returns(uint)
     {
-        user                =   User(user_list.getAgentAddrByIndex(index));
-        user_id_str         =   LibString.bytes32ToString(user_list.getUserIDByIndex(index));
-        var(class_id,make_date,lev_id,wh_id,place_id) = user.getSheetAttributeByIndex(index);
+        user  =   User(user_list.getUserAgentAddr(user_id));
+        return user.getSheetMapSize(); 
+    }
+    //获取仓单数量
+    function getSheetAmount(bytes32 user_id, uint index) returns(uint total_amount,uint frozen_amount,uint available_amount)
+    {
+        user  =   User(user_list.getUserAgentAddr(user_id));
+        (total_amount,frozen_amount,available_amount) = user.getSheetAmount(index);
+
+    }
+    //获取仓单数据固定属性
+    function getSheetInfo(bytes32 user_id,uint index) returns( uint sheet_id,string class_id,string make_date,string lev_id,string wh_id, string place_id)
+    {
+        user                =   User(user_list.getUserAgentAddr(user_id));
+        var(sheet_id_,class_id_,make_date_,lev_id_,wh_id_,place_id_) = user.getSheetAttributeByIndex(index);
+        sheet_id    =   sheet_id_;
+        class_id    =   LibString.bytes32ToString(class_id_);
+        make_date   =   LibString.bytes32ToString(make_date_);
+        lev_id      =   LibString.bytes32ToString(lev_id_);
+        wh_id       =   LibString.bytes32ToString(wh_id_);
+        place_id    =   LibString.bytes32ToString(place_id_);
     }
 
     //获取挂牌交易确认请求列表的长度
