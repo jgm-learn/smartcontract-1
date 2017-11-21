@@ -41,6 +41,11 @@ contract Admin
         contract_address = ContractAddress(addr);
         user_list =  UserList(contract_address.getContractAddress(user_list_name));
     }
+    //系统启动时需要设置feeRate
+    function initFeeRate(uint fee_rate)
+    {
+        fee_rate_ = fee_rate;
+    }
 
     //设置手续费
     function setFeeRate(uint fee_rate)
@@ -49,8 +54,9 @@ contract Admin
         uint user_amount = user_list.getUserNum();
         for(uint i = 0; i < user_amount; i++)
         {
-            user = User(user_list.getAgentAddrByIndex(i));
-            user.setFeeRate(fee_rate);
+            //非Admin
+            if (this != user_list.getAgentAddrByIndex(i))
+                user.setFeeRate(fee_rate);
         }
     }
 
