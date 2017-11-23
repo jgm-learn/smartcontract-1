@@ -60,7 +60,7 @@ module.exports = function(deployer) {
   deployer.link(LibUserAddrMap, [UserList]);
 
   deployer.link(StructSheet, [User]);
-  deployer.link(LibSheetMap, [User,Admin]);
+  deployer.link(LibSheetMap, [User,Admin,UserList]);
   deployer.link(StructTrade, [User]);
   deployer.link(LibTradeMap, [User]);
 
@@ -69,7 +69,6 @@ module.exports = function(deployer) {
   deployer.deploy(Market);
   deployer.deploy(UserList);
   deployer.deploy(Admin);
-  deployer.deploy(CreateID);
   deployer.deploy(Proxy);
   deployer.deploy(Login);
 };

@@ -100,7 +100,12 @@ async function setAdminExternAddr()
     console.log("\tAdmin合约的外部账户地址:"+admin_extern_addr);
     console.log("End:...设置Admin合约外部账户地址完毕");
 }
+async function initFeeRate()
+{
+    await Admin_instance.initFeeRate.sendTransaction(10, {from:god_account,gas:9999999});
+}
 initAddress().then( async function(){
     await setDep();
     await setAdminExternAddr();
+    await initFeeRate();
 });

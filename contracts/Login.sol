@@ -14,7 +14,6 @@ contract Login
          contract_address = ContractAddress(addr);
          user_list = UserList(contract_address.getContractAddress(user_list_name));
     }
-	
     function verfication(bytes32 user_id) returns(int ret, int user_auth, address user_addr)
     {
         if(!user_list.isExisted(user_id))
