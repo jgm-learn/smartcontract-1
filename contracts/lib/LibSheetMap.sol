@@ -41,7 +41,8 @@ library LibSheetMap
     //减少仓单
     function reduce(SheetMap storage self, uint k, uint qty)
     {
-        self.data[k].all_amount_ -=  qty;
+        self.data[k].all_amount_    -=  qty;
+        self.data[k].frozen_amount_  -=   qty;
     }
 
     //冻结仓单
@@ -139,9 +140,9 @@ library LibSheetMap
     {
         for(uint i = 0; i < self.keyIndex.length; i++)
         {
-            total_all_amount            +=   self.data[i].all_amount_;
-            total_available_amount      +=   self.data[i].available_amount_;
-            total_frozen_amount         +=   self.data[i].frozen_amount_;
+            total_all_amount            +=   self.data[self.keyIndex[i]].all_amount_;
+            total_available_amount      +=   self.data[self.keyIndex[i]].available_amount_;
+            total_frozen_amount         +=   self.data[self.keyIndex[i]].frozen_amount_;
         }
     }
 

@@ -158,6 +158,7 @@ contract Admin
         int     user_auth;
 
         (external_addr,agent_addr,user_id,user_auth) = user_list.getUserInfoByIndex(index);
+        user_id_str     =   LibString.bytes32ToString(user_id);
         user            =   User(agent_addr);
         (total_sheet,available_sheet,frozen_sheet) =   user.getSheetTotalAmount();
         total_funds     =   user.getTotalFunds();

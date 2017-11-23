@@ -32,7 +32,6 @@ contract TestAdmin
     uint 				frozen_amount;
 
 
-    /*
     function beforeEach()
     {
 		sheet_id            = 1;
@@ -41,13 +40,13 @@ contract TestAdmin
         frozen_amount       = 20;
 
 
+        admin           =   new Admin();
         user_a          =   new User();
         user_b          =   new User();
         user_list       =   new UserList();
         contract_addr   =   new ContractAddress();
         market          =   new Market();
         create_id       =   new CreateID();
-        //admin           =   new Admin();
 
 		market_name     = "market";
         create_id_name  = "create_id";
@@ -59,7 +58,7 @@ contract TestAdmin
 		contract_addr.setContractAddress(market_name, market);
         contract_addr.setContractAddress(create_id_name, create_id);
         contract_addr.setContractAddress(user_list_name, user_list);
-        //contract_addr.setContractAddress(admin_name, admin);
+        contract_addr.setContractAddress(admin_name, admin);
 
 		market.setContractAddress(contract_addr);
         market.setCreateIDName(create_id_name);
@@ -68,7 +67,7 @@ contract TestAdmin
         user_list.addUser(user_a,user_a,user_a_id,1);
         user_list.addUser(user_b,user_b,user_b_id,1);
 
-       //admin.init(contract_addr, user_list_name);
+        admin.init(contract_addr, user_list_name);
 
 		user_a.setContractAddress(contract_addr);
         user_a.setMarketName(market_name);
@@ -87,9 +86,7 @@ contract TestAdmin
         user_b.setAdmin(admin_name);
 
     }
-    */
 
-    /*
 
 	 //测试摘牌
     function testDelistRequest()
@@ -103,13 +100,13 @@ contract TestAdmin
         user_a.insertSheet(user_a_id,"SR","make_date","level_id","wh_id","产地",all_amount,frozen_amount,available_amount);
 
         user_a.insertFunds(1000);      //初始化资金
-		user_a.setFee(5);
+		user_a.setFeeRate(5);
 
        var ret_market_id = user_a.listRequest(user_a_id,sheet_id,sell_price,sell_qty);
 
         //user_b 摘牌
         user_b.insertFunds(1000);      //初始化资金
-		user_a.setFee(5);
+		user_a.setFeeRate(5);
         uint buy_qty = 2;
         
         var ret_delist = user_b.delistRequest(user_b_id, ret_market_id, buy_qty);
@@ -148,13 +145,13 @@ contract TestAdmin
         //创建仓单
         user_a.insertSheet(user_a_id,"SR","make_date","level_id","wh_id","产地",all_amount,frozen_amount,available_amount);
         user_a.insertFunds(1000);       //初始化资金
-        user_a.setFee(3);               //设置手续费比率
+        user_a.setFeeRate(3);               //设置手续费比率
 
         //发送协商交易请求
         user_a.sendNegReq(sheet_id,sell_qty,sell_price,user_b_id);
 
         user_b.insertFunds(1000);       //初始化资金
-        user_b.setFee(3);               //设置手续费比率
+        user_b.setFeeRate(3);               //设置手续费比率
 
         //同意协商交易
         ret = user_b.agreeNeg(user_b_id, 1);
@@ -185,7 +182,6 @@ contract TestAdmin
         Assert.equal(user_b.getFrozenFunds(), 0, "");
         Assert.equal(user_b.getSheetAllAmount(2), 6, "");
 	}
-    */
 
 }
 
